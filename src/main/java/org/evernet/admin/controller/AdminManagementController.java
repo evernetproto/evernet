@@ -39,6 +39,11 @@ public class AdminManagementController extends AuthenticatedAdminController {
         return adminService.list(pageable);
     }
 
+    @GetMapping("/admins/{identifier}")
+    public Admin get(@PathVariable String identifier) {
+        return adminService.get(identifier);
+    }
+
     @DeleteMapping("/admins/{identifier}")
     public Admin delete(@PathVariable String identifier) {
         return adminService.delete(identifier);
