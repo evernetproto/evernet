@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.evernet.admin.model.Admin;
 import org.evernet.admin.request.AdminInitRequest;
+import org.evernet.admin.request.AdminTokenRequest;
+import org.evernet.admin.response.AdminTokenResponse;
 import org.evernet.admin.service.AdminService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,5 +22,10 @@ public class AdminController {
     @PostMapping("/admins/init")
     public Admin init(@Valid @RequestBody AdminInitRequest request) {
         return adminService.init(request);
+    }
+
+    @PostMapping("/admins/token")
+    public AdminTokenResponse getToken(@Valid @RequestBody AdminTokenRequest request) {
+        return adminService.getToken(request);
     }
 }
