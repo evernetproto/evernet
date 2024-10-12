@@ -5,11 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.evernet.core.auth.AuthenticatedAdminController;
 import org.evernet.node.model.Node;
 import org.evernet.node.request.NodeCreationRequest;
+import org.evernet.node.request.NodeUpdateRequest;
 import org.evernet.node.service.NodeService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -23,5 +23,30 @@ public class NodeController extends AuthenticatedAdminController {
     @PostMapping("/nodes")
     public Node create(@Valid @RequestBody NodeCreationRequest request) throws NoSuchAlgorithmException {
         return nodeService.create(request, getAdmin());
+    }
+
+    @GetMapping("/nodes")
+    public Page<Node> list(Pageable pageable) {
+        return nodeService.list(pageable);
+    }
+
+    @GetMapping("/nodes/{identifier}")
+    public Node get(@PathVariable String identifier) {
+        return nodeService.get(identifier);
+    }
+
+    @PutMapping("/nodes/{identifier}")
+    public Node update(@PathVariable String identifier, @Valid @RequestBody NodeUpdateRequest request) {
+        return nodeService.update(identifier, request);
+    }
+
+    @DeleteMapping("/nodes/{identifier}")
+    public Node delete(@PathVariable String identifier) {
+        return nodeService.delete(identifier);
+    }
+
+    @PutMapping("/nodes/{identifier}/signing-keys")
+    public Node resetSigningKeys(@PathVariable String identifier) throws NoSuchAlgorithmException {
+        return nodeService.resetSigningKeys(identifier);
     }
 }
