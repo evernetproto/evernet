@@ -19,6 +19,7 @@ dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.46.1.3'
     implementation 'org.hibernate.orm:hibernate-community-dialects:6.6.1.Final'
     implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.2'
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.78.1'
     implementation 'org.mindrot:jbcrypt:0.4'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
