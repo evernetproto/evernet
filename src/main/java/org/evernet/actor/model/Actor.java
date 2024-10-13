@@ -1,4 +1,4 @@
-package org.evernet.admin.model;
+package org.evernet.actor.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -22,23 +22,32 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(NON_NULL)
 @Entity
-@Table(name = "admins")
-public class Admin {
+@Table(name = "actors")
+public class Actor {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", unique = true, nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private String id;
 
-    @Column(name = "identifier", unique = true, nullable = false)
+    @Column(name = "identifier", nullable = false)
     private String identifier;
 
     @JsonIgnore
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "creator", nullable = false)
-    private String creator;
+    @Column(name = "type", nullable = false)
+    private String type;
+
+    @Column(name = "display_name", nullable = false)
+    private String displayName;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "node_identifier", nullable = false)
+    private String nodeIdentifier;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
