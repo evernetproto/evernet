@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.evernet.actor.model.Actor;
 import org.evernet.actor.request.ActorSignUpRequest;
+import org.evernet.actor.request.ActorTokenRequest;
+import org.evernet.actor.response.ActorTokenResponse;
 import org.evernet.actor.service.ActorService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,5 +22,10 @@ public class ActorAccountController {
     @PostMapping("/actors/signup")
     public Actor signUp(@Valid @RequestBody ActorSignUpRequest request) {
         return actorService.signUp(request);
+    }
+
+    @PostMapping("/actors/token")
+    public ActorTokenResponse getToken(@Valid @RequestBody ActorTokenRequest request) throws Exception {
+        return actorService.getToken(request);
     }
 }

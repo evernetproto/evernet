@@ -43,6 +43,7 @@ public class AdminService {
         Admin admin = Admin.builder()
                 .identifier(request.getIdentifier())
                 .password(Password.hash(request.getPassword()))
+                .creator(request.getIdentifier())
                 .build();
 
         return adminRepository.save(admin);
