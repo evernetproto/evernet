@@ -10,6 +10,7 @@ import org.evernet.core.exception.InvalidTokenException;
 import org.evernet.core.exception.ServerException;
 import org.evernet.core.util.Ed25519KeyPairUtil;
 import org.evernet.node.service.NodeService;
+import org.evernet.node.service.RemoteNodeService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +36,8 @@ public class Jwt {
     private String vertex;
 
     private final NodeService nodeService;
+
+    private final RemoteNodeService remoteNodeService;
 
     public AuthenticatedAdmin getAdmin(String token) {
         Claims claims = Jwts.parser()
@@ -77,10 +80,14 @@ public class Jwt {
                             throw new ServerException(e.getMessage());
                         }
                     } else {
-                        throw new ServerException("Not implemented");
+                        try {
+                            return Ed25519KeyPairUtil.stringToPublicKey(remoteNodeService.get(sourceVertex, sourceNodeIdentifier).getSigningPublicKey());
+                        } catch (Exception e) {
+                            throw new ServerException(e.getMessage());
+                        }
                     }
                 })
-                .require(CLAIM_TOKEN_TYPE, TOKEN_TYPE_ADMIN)
+                .require(CLAIM_TOKEN_TYPE, TOKEN_TYPE_ACTOR)
                 .build()
                 .parseSignedClaims(token);
 
