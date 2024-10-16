@@ -1,5 +1,7 @@
 package org.evernet.core.auth;
 
+import org.evernet.core.exception.NotAllowedException;
+
 public class AuthenticatedActorController {
 
     public AuthenticatedActor getActor() {
@@ -40,5 +42,11 @@ public class AuthenticatedActorController {
 
     public Boolean isLocalActor() {
         return getActor().isLocal();
+    }
+
+    public void checkLocalActor() {
+        if (!isLocalActor()) {
+            throw new NotAllowedException();
+        }
     }
 }

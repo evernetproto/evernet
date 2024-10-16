@@ -7,7 +7,6 @@ import org.evernet.actor.request.ActorPasswordChangeRequest;
 import org.evernet.actor.request.ActorUpdateRequest;
 import org.evernet.actor.service.ActorService;
 import org.evernet.core.auth.AuthenticatedActorController;
-import org.evernet.core.exception.NotAllowedException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,37 +18,25 @@ public class ActorController extends AuthenticatedActorController {
 
     @GetMapping("/actors/current")
     public Actor get() {
-        if (!isLocalActor()) {
-            throw new NotAllowedException();
-        }
-
+        checkLocalActor();
         return actorService.get(getActorIdentifier(), getTargetNodeIdentifier());
     }
 
     @PutMapping("/actors/current")
     public Actor update(@Valid @RequestBody ActorUpdateRequest request) {
-        if (!isLocalActor()) {
-            throw new NotAllowedException();
-        }
-
+        checkLocalActor();
         return actorService.update(getActorIdentifier(), request, getTargetNodeIdentifier());
     }
 
     @PutMapping("/actors/current/password")
     public Actor changePassword(@Valid @RequestBody ActorPasswordChangeRequest request) {
-        if (!isLocalActor()) {
-            throw new NotAllowedException();
-        }
-
+        checkLocalActor();
         return actorService.changePassword(getActorIdentifier(), request, getTargetNodeIdentifier());
     }
 
     @DeleteMapping("/actors/current")
     public Actor delete() {
-        if (!isLocalActor()) {
-            throw new NotAllowedException();
-        }
-
+        checkLocalActor();
         return actorService.delete(getActorIdentifier(), getTargetNodeIdentifier());
     }
 }
