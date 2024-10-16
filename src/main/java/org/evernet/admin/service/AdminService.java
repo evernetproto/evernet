@@ -17,12 +17,9 @@ import org.evernet.core.exception.NotAllowedException;
 import org.evernet.core.exception.NotFoundException;
 import org.evernet.core.util.Password;
 import org.evernet.core.util.Random;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +28,6 @@ public class AdminService {
     private final AdminRepository adminRepository;
 
     private final Jwt jwt;
-
-    @Value("${evernet.vertex}")
-    private String vertex;
 
     public Admin init(AdminInitRequest request) {
         if (adminRepository.count() != 0) {
@@ -59,7 +53,7 @@ public class AdminService {
 
         String token = jwt.getAdminToken(AuthenticatedAdmin.builder()
                 .identifier(request.getIdentifier())
-                .build(), vertex, vertex);
+                .build());
 
         return AdminTokenResponse.builder().token(token).build();
     }

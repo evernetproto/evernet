@@ -90,7 +90,7 @@ public class NodeService {
         return node;
     }
 
-    private Boolean exists(String identifier) {
+    public Boolean exists(String identifier) {
         return nodeRepository.existsByIdentifier(identifier);
     }
 }
