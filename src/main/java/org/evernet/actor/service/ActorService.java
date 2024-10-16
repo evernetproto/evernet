@@ -11,6 +11,7 @@ import org.evernet.core.auth.Jwt;
 import org.evernet.core.exception.AuthenticationException;
 import org.evernet.core.exception.ClientException;
 import org.evernet.core.exception.NotAllowedException;
+import org.evernet.core.exception.NotFoundException;
 import org.evernet.core.util.Ed25519KeyPairUtil;
 import org.evernet.core.util.Password;
 import org.evernet.node.model.Node;
@@ -88,8 +89,12 @@ public class ActorService {
                 .build();
     }
 
+    public Actor get(String identifier, String nodeIdentifier) {
+        return actorRepository.findByIdentifierAndNodeIdentifier(identifier, nodeIdentifier)
+                .orElseThrow(() -> new NotFoundException(String.format("Actor %s not found on node %s", identifier, nodeIdentifier)));
+    }
+
     private Boolean exists(String identifier, String nodeIdentifier) {
         return actorRepository.existsByIdentifierAndNodeIdentifier(identifier, nodeIdentifier);
     }
-
 }

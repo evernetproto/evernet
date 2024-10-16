@@ -29,6 +29,6 @@ public class ActorAuthenticator implements Authenticator {
 
     @Override
     public Class<?> getType() {
-        return AuthenticatedAdminController.class;
+        return AuthenticatedActorController.class;
     }
 }
