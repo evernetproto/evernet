@@ -25,7 +25,7 @@ public class OutboxController extends AuthenticatedActorController {
 
     @GetMapping("/outboxes")
     public Page<Outbox> list(Pageable pageable) {
-        return outboxService.list(getActorAddress(), pageable);
+        return outboxService.list(getActor(), pageable);
     }
 
     @GetMapping("/outboxes/{identifier}")

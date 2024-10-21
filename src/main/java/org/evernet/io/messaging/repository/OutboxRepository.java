@@ -13,7 +13,7 @@ public interface OutboxRepository extends JpaRepository<Outbox, String> {
 
     Boolean existsByIdentifierAndNodeIdentifier(String identifier, String nodeIdentifier);
 
-    Page<Outbox> findByActorAddress(String actorAddress, Pageable pageable);
+    Page<Outbox> findByActorAddressAndNodeIdentifier(String actorAddress, String nodeIdentifier, Pageable pageable);
 
     Optional<Outbox> findByIdentifierAndActorAddressAndNodeIdentifier(String identifier, String actorAddress, String nodeIdentifier);
 }

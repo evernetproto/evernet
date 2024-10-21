@@ -35,8 +35,8 @@ public class OutboxService {
         return outboxRepository.save(outbox);
     }
 
-    public Page<Outbox> list(String actorAddress, Pageable pageable) {
-        return outboxRepository.findByActorAddress(actorAddress, pageable);
+    public Page<Outbox> list(AuthenticatedActor actor, Pageable pageable) {
+        return outboxRepository.findByActorAddressAndNodeIdentifier(actor.getAddress(), actor.getTargetNodeIdentifier(), pageable);
     }
 
     public Outbox get(String identifier, AuthenticatedActor actor) {
