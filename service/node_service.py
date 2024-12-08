@@ -66,8 +66,13 @@ class NodeService:
             "identifier": identifier,
         }
 
-    def delete(self):
-        pass
+    def delete(self, identifier: str) -> dict:
+        result = self.mongo.delete_one({"identifier": identifier})
+        if result.deleted_count == 0:
+            raise Exception(f"Node {identifier} not found")
+        return {
+            "identifier": identifier,
+        }
 
     def reset_signing_key(self):
         pass
