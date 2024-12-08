@@ -38,8 +38,11 @@ class NodeService:
             result.append(self.to_dict(node))
         return result
 
-    def get(self):
-        pass
+    def get(self, identifier: str) -> dict:
+        node = self.mongo.find_one({"identifier": identifier})
+        if not node:
+            raise Exception(f"Node {identifier} not found")
+        return self.to_dict(node)
 
     def update(self):
         pass

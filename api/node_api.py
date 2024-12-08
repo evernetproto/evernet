@@ -24,3 +24,7 @@ class NodeApi:
         @self.app.get("/api/v1/nodes")
         def fetch_nodes():
             return self.node_service.fetch(page(), size())
+
+        @self.app.get("/api/v1/nodes/<identifier>")
+        def get_node(identifier):
+            return self.node_service.get(identifier)
