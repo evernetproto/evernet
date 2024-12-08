@@ -44,10 +44,32 @@ class NodeService:
             raise Exception(f"Node {identifier} not found")
         return self.to_dict(node)
 
-    def update(self):
-        pass
+    def update(self, identifier: str, display_name: str, description: str) -> dict:
+        fields = {
+            "description": description,
+            "updated_at": datetime.now(),
+        }
+
+        if display_name:
+            fields["display_name"] = display_name
+
+        result = self.mongo.update_one({
+            "identifier": identifier,
+        }, {
+            "$set": fields
+        })
+
+        if result.matched_count == 0:
+            raise Exception(f"Node {identifier} not found")
+
+        return {
+            "identifier": identifier,
+        }
 
     def delete(self):
+        pass
+
+    def reset_signing_key(self):
         pass
 
     @staticmethod

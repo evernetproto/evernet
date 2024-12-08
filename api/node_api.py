@@ -28,3 +28,12 @@ class NodeApi:
         @self.app.get("/api/v1/nodes/<identifier>")
         def get_node(identifier):
             return self.node_service.get(identifier)
+
+        @self.app.put("/api/v1/nodes/<identifier>")
+        @authenticate_admin
+        def update_node(admin, identifier):
+            return self.node_service.update(
+                identifier,
+                optional_param("display_name"),
+                optional_param("description"),
+            )
