@@ -71,6 +71,7 @@ def authenticate_admin(f):
 
     return decorated
 
+
 def authenticate_actor(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -89,13 +90,17 @@ def authenticate_actor(f):
             issuer_vertex_endpoint, issuer_node_identifier, issuer_signing_public_key = g.node_key_service.get_signing_public_key(
                 kid)
 
-            data = jwt.decode(token,
-                              issuer_signing_public_key,
-                              algorithms=['EdDSA'],
-                              issuer="%s/%s" % (issuer_vertex_endpoint, issuer_node_identifier),
-                              audience="%s/%s" % (g.vertex_endpoint, kwargs.get("node_identifier")))
+            data = jwt.decode(
+                token,
+                issuer_signing_public_key,
+                algorithms=['EdDSA'],
+                issuer="%s/%s" % (issuer_vertex_endpoint, issuer_node_identifier),
+                audience="%s/%s" % (g.vertex_endpoint, kwargs.get("node_identifier"))
+            )
+
             if data["type"] != "actor":
                 raise Exception("Invalid access token")
+
             current_actor = {
                 "identifier": data["sub"],
                 "vertex_endpoint": issuer_vertex_endpoint,
