@@ -16,7 +16,7 @@ federation_protocol = os.getenv("FEDERATION_PROTOCOL")
 
 db = pymongo.MongoClient(os.getenv("DB_HOST"), int(os.getenv("DB_PORT"))).evernet
 
-admin_service = AdminService(db.admins)
+admin_service = AdminService(db.admins, jwt_signing_key, vertex)
 
 HealthApi(app, vertex).register()
 AdminApi(app, admin_service).register()
