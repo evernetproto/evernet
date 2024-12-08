@@ -31,8 +31,12 @@ class NodeService:
             "identifier": identifier,
         }
 
-    def fetch(self):
-        pass
+    def fetch(self, page=0, size=50) -> list[dict]:
+        nodes = self.mongo.find({}).skip(page * size).limit(size)
+        result = []
+        for node in nodes:
+            result.append(self.to_dict(node))
+        return result
 
     def get(self):
         pass
