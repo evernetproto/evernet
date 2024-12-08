@@ -110,7 +110,9 @@ class AdminService:
 
     def reset_password(self, identifier: str) -> dict:
         new_password = self.password_generator.generate()
-        return self.change_password(identifier, new_password)
+        result = self.change_password(identifier, new_password)
+        result["password"] = new_password
+        return result
 
     @staticmethod
     def to_dict(self):
