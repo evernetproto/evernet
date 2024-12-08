@@ -46,3 +46,18 @@ class AdminService:
             algorithm="HS256",
             key=self.jwt_signing_key),
         }
+
+    def get(self, identifier: str) -> dict:
+        admin = self.mongo.find_one({"identifier": identifier})
+        if not admin:
+            raise Exception(f"Admin {identifier} not found")
+        return self.to_dict(admin)
+
+    @staticmethod
+    def to_dict(self):
+        return {
+            "identifier": self["identifier"],
+            "creator": self["creator"],
+            "created_at": self["created_at"],
+            "updated_at": self["updated_at"],
+        }
