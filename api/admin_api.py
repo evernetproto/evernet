@@ -1,6 +1,6 @@
 from flask import Flask
 
-from lib.api import required_param, authenticate_admin
+from lib.api import required_param, authenticate_admin, size, page
 from service import AdminService
 
 
@@ -27,7 +27,7 @@ class AdminApi:
 
         @self.app.get("/api/v1/admins/current")
         @authenticate_admin
-        def get_admin(admin):
+        def get_current_admin(admin):
             return self.admin_service.get(admin["identifier"])
 
         @self.app.put("/api/v1/admins/current/password")
@@ -37,3 +37,31 @@ class AdminApi:
                 admin["identifier"],
                 required_param("password")
             )
+
+        @self.app.post("/api/v1/admins")
+        @authenticate_admin
+        def add_admin(admin):
+            return self.admin_service.add(
+                required_param("identifier"),
+                admin["identifier"],
+            )
+
+        @self.app.get("/api/v1/admins")
+        @authenticate_admin
+        def fetch_admins(_):
+            return self.admin_service.fetch(page(), size())
+
+        @self.app.get("/api/v1/admins/<identifier>")
+        @authenticate_admin
+        def get_admin(_, identifier):
+            return self.admin_service.get(identifier)
+
+        @self.app.put("/api/v1/admins/<identifier>/password")
+        @authenticate_admin
+        def reset_admin_password(_, identifier):
+            return self.admin_service.reset_password(identifier)
+
+        @self.app.delete("/api/v1/admins/<identifier>")
+        @authenticate_admin
+        def delete_admin(_, identifier):
+            return self.admin_service.delete(identifier)
