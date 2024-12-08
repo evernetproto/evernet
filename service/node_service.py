@@ -74,8 +74,26 @@ class NodeService:
             "identifier": identifier,
         }
 
-    def reset_signing_key(self):
-        pass
+    def reset_signing_key(self, identifier: str) -> dict:
+        signing_private_key, signing_public_key = generate_ed25519_keys()
+        fields = {
+            "signing_private_key": private_key_to_string(signing_private_key),
+            "signing_public_key": public_key_to_string(signing_public_key),
+            "updated_at": datetime.now(),
+        }
+
+        result = self.mongo.update_one({
+            "identifier": identifier,
+        }, {
+            "$set": fields
+        })
+
+        if result.matched_count == 0:
+            raise Exception(f"Node {identifier} not found")
+
+        return {
+            "identifier": identifier,
+        }
 
     @staticmethod
     def to_dict(self):
