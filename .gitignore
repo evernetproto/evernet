@@ -40,3 +40,5 @@ bin/
 
 # Sqlite
 *.db
+*.sqlite
+
