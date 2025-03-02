@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface AdminRepository extends JpaRepository<Admin, String> {
 
     Optional<Admin> findByIdentifier(String identifier);
+
+    Boolean existsByIdentifier(String identifier);
 }
