@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.evernet.admin.model.Admin;
 import org.evernet.admin.repository.AdminRepository;
 import org.evernet.admin.request.AdminInitRequest;
+import org.evernet.admin.request.AdminPasswordChangeRequest;
 import org.evernet.admin.request.AdminTokenRequest;
 import org.evernet.admin.response.AdminTokenResponse;
 import org.evernet.common.auth.AuthenticatedAdmin;
@@ -49,5 +50,11 @@ public class AdminService {
     public Admin get(String identifier) {
         return adminRepository.findByIdentifier(identifier)
                 .orElseThrow(() -> new NotFoundException(String.format("Admin %s not found", identifier)));
+    }
+
+    public Admin changePassword(String identifier, AdminPasswordChangeRequest request) {
+        Admin admin = get(identifier);
+        admin.setPassword(Password.hash(request.getPassword()));
+        return adminRepository.save(admin);
     }
 }
