@@ -81,7 +81,7 @@ public class NodeService {
         return node;
     }
 
-    private Boolean identifierExists(String identifier) {
+    public Boolean identifierExists(String identifier) {
         return nodeRepository.existsByIdentifier(identifier);
     }
 }
