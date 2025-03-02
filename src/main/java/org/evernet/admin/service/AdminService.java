@@ -10,6 +10,7 @@ import org.evernet.common.auth.AuthenticatedAdmin;
 import org.evernet.common.auth.Jwt;
 import org.evernet.common.exception.AuthenticationException;
 import org.evernet.common.exception.NotAllowedException;
+import org.evernet.common.exception.NotFoundException;
 import org.evernet.common.util.Password;
 import org.springframework.stereotype.Service;
 
@@ -43,5 +44,10 @@ public class AdminService {
 
         String token = jwt.getAdminToken(AuthenticatedAdmin.builder().identifier(admin.getIdentifier()).build());
         return AdminTokenResponse.builder().token(token).build();
+    }
+
+    public Admin get(String identifier) {
+        return adminRepository.findByIdentifier(identifier)
+                .orElseThrow(() -> new NotFoundException(String.format("Admin %s not found", identifier)));
     }
 }
