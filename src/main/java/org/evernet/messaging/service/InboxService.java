@@ -7,7 +7,10 @@ import org.evernet.common.exception.ClientException;
 import org.evernet.messaging.model.Inbox;
 import org.evernet.messaging.repository.InboxRepository;
 import org.evernet.messaging.request.InboxCreationRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,10 @@ public class InboxService {
                 .build();
 
         return inboxRepository.save(inbox);
+    }
+
+    public List<Inbox> list(ActorReference actorReference, NodeReference nodeReference, Pageable pageable ) {
+        return inboxRepository.findByActorAddressAndNodeIdentifier(actorReference.getAddress(), nodeReference.getIdentifier(), pageable);
     }
 
     private Boolean identifierExists(String identifier, String nodeIdentifier) {
