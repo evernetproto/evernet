@@ -4,10 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.evernet.common.address.ActorReference;
 import org.evernet.common.address.NodeReference;
 import org.evernet.common.exception.ClientException;
+import org.evernet.common.exception.NotFoundException;
 import org.evernet.messaging.model.ConnectionGroup;
 import org.evernet.messaging.repository.ConnectionGroupRepository;
 import org.evernet.messaging.request.ConnectionGroupCreationRequest;
+import org.evernet.messaging.request.ConnectionGroupUpdateRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +35,34 @@ public class ConnectionGroupService {
                 .build();
 
         return connectionGroupRepository.save(connectionGroup);
+    }
+
+    public List<ConnectionGroup> list(ActorReference actorReference, NodeReference nodeReference, Pageable pageable) {
+        return connectionGroupRepository.findByActorAddressAndNodeIdentifier(actorReference.getAddress(), nodeReference.getIdentifier(), pageable);
+    }
+
+    public ConnectionGroup get(String identifier, ActorReference actorReference, NodeReference nodeReference) {
+        return connectionGroupRepository.findByIdentifierAndActorAddressAndNodeIdentifier(identifier,
+                actorReference.getAddress(), nodeReference.getIdentifier())
+                .orElseThrow(() -> new NotFoundException(String.format("Connection group %s not found in node %s", identifier, nodeReference.getIdentifier())));
+    }
+
+    public ConnectionGroup update(String identifier, ConnectionGroupUpdateRequest request, ActorReference actorReference, NodeReference nodeReference) {
+        ConnectionGroup connectionGroup = get(identifier, actorReference, nodeReference);
+
+        if (StringUtils.hasText(request.getDisplayName())) {
+            connectionGroup.setDisplayName(request.getDisplayName());
+        }
+
+        connectionGroup.setDescription(request.getDescription());
+
+        return connectionGroupRepository.save(connectionGroup);
+    }
+
+    public ConnectionGroup delete(String identifier, ActorReference actorReference, NodeReference nodeReference) {
+        ConnectionGroup connectionGroup = get(identifier, actorReference, nodeReference);
+        connectionGroupRepository.delete(connectionGroup);
+        return connectionGroup;
     }
 
     private Boolean identifierExists(String identifier, String actorAddress, String nodeIdentifier) {
