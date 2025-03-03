@@ -2,6 +2,7 @@ package org.evernet.auth;
 
 import org.evernet.common.address.ActorReference;
 import org.evernet.common.address.NodeReference;
+import org.evernet.common.exception.NotAllowedException;
 
 public class AuthenticatedActorController {
 
@@ -19,5 +20,11 @@ public class AuthenticatedActorController {
 
     public Boolean isLocalActor() {
         return getActor().isLocal();
+    }
+
+    public void checkLocalActor() {
+        if (!isLocalActor()) {
+            throw new NotAllowedException();
+        }
     }
 }

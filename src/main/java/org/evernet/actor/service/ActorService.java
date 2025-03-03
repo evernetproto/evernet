@@ -84,6 +84,11 @@ public class ActorService {
         return ActorTokenResponse.builder().token(token).build();
     }
 
+    public Actor get(String identifier, String nodeIdentifier) {
+        return actorRepository.findByNodeIdentifierAndIdentifier(nodeIdentifier, identifier)
+                .orElseThrow(() -> new NotFoundException(String.format("Actor %s not found on node %s", identifier, nodeIdentifier)));
+    }
+
     private Boolean identifierExists(String identifier, String nodeIdentifier) {
         return actorRepository.existsByIdentifierAndNodeIdentifier(identifier, nodeIdentifier);
     }
