@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.evernet.auth.AuthenticatedActorController;
 import org.evernet.messaging.model.Inbox;
 import org.evernet.messaging.request.InboxCreationRequest;
+import org.evernet.messaging.request.InboxUpdateRequest;
 import org.evernet.messaging.service.InboxService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -31,5 +32,10 @@ public class InboxController extends AuthenticatedActorController {
     @GetMapping("/inboxes/{identifier}")
     public Inbox get(@PathVariable String identifier) {
         return inboxService.get(identifier, getActorReference(), getTargetNode());
+    }
+
+    @PutMapping("/inboxes/{identifier}")
+    public Inbox update(@PathVariable String identifier, @Valid @RequestBody InboxUpdateRequest request) {
+        return inboxService.update(identifier, request, getActorReference(), getTargetNode());
     }
 }

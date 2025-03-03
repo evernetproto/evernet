@@ -8,8 +8,10 @@ import org.evernet.common.exception.NotFoundException;
 import org.evernet.messaging.model.Inbox;
 import org.evernet.messaging.repository.InboxRepository;
 import org.evernet.messaging.request.InboxCreationRequest;
+import org.evernet.messaging.request.InboxUpdateRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -42,6 +44,18 @@ public class InboxService {
     public Inbox get(String identifier, ActorReference actorReference, NodeReference nodeReference) {
         return inboxRepository.findByIdentifierAndActorAddressAndNodeIdentifier(identifier, actorReference.getAddress(), nodeReference.getIdentifier())
                 .orElseThrow(() -> new NotFoundException(String.format("Inbox %s not found in node %s", identifier, nodeReference.getIdentifier())));
+    }
+
+    public Inbox update(String identifier, InboxUpdateRequest request, ActorReference actorReference, NodeReference nodeReference) {
+        Inbox inbox = get(identifier, actorReference, nodeReference);
+
+        if (StringUtils.hasText(request.getDisplayName())) {
+            inbox.setDisplayName(request.getDisplayName());
+        }
+
+        inbox.setDescription(request.getDescription());
+
+        return inboxRepository.save(inbox);
     }
 
     private Boolean identifierExists(String identifier, String nodeIdentifier) {
