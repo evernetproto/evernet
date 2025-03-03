@@ -38,4 +38,9 @@ public class InboxController extends AuthenticatedActorController {
     public Inbox update(@PathVariable String identifier, @Valid @RequestBody InboxUpdateRequest request) {
         return inboxService.update(identifier, request, getActorReference(), getTargetNode());
     }
+
+    @DeleteMapping("/inboxes/{identifier}")
+    public Inbox delete(@PathVariable String identifier) {
+        return inboxService.delete(identifier, getActorReference(), getTargetNode());
+    }
 }

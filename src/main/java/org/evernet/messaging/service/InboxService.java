@@ -58,6 +58,12 @@ public class InboxService {
         return inboxRepository.save(inbox);
     }
 
+    public Inbox delete(String identifier, ActorReference actorReference, NodeReference nodeReference) {
+        Inbox inbox = get(identifier, actorReference, nodeReference);
+        inboxRepository.delete(inbox);
+        return inbox;
+    }
+
     private Boolean identifierExists(String identifier, String nodeIdentifier) {
         return inboxRepository.existsByIdentifierAndNodeIdentifier(identifier, nodeIdentifier);
     }
