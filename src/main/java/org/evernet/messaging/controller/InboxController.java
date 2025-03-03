@@ -27,4 +27,9 @@ public class InboxController extends AuthenticatedActorController {
     public List<Inbox> list(Pageable pageable) {
         return inboxService.list(getActorReference(), getTargetNode(), pageable);
     }
+
+    @GetMapping("/inboxes/{identifier}")
+    public Inbox get(@PathVariable String identifier) {
+        return inboxService.get(identifier, getActorReference(), getTargetNode());
+    }
 }

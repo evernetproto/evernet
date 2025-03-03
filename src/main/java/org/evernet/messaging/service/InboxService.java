@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.evernet.common.address.ActorReference;
 import org.evernet.common.address.NodeReference;
 import org.evernet.common.exception.ClientException;
+import org.evernet.common.exception.NotFoundException;
 import org.evernet.messaging.model.Inbox;
 import org.evernet.messaging.repository.InboxRepository;
 import org.evernet.messaging.request.InboxCreationRequest;
@@ -36,6 +37,11 @@ public class InboxService {
 
     public List<Inbox> list(ActorReference actorReference, NodeReference nodeReference, Pageable pageable ) {
         return inboxRepository.findByActorAddressAndNodeIdentifier(actorReference.getAddress(), nodeReference.getIdentifier(), pageable);
+    }
+
+    public Inbox get(String identifier, ActorReference actorReference, NodeReference nodeReference) {
+        return inboxRepository.findByIdentifierAndActorAddressAndNodeIdentifier(identifier, actorReference.getAddress(), nodeReference.getIdentifier())
+                .orElseThrow(() -> new NotFoundException(String.format("Inbox %s not found in node %s", identifier, nodeReference.getIdentifier())));
     }
 
     private Boolean identifierExists(String identifier, String nodeIdentifier) {
