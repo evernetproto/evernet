@@ -1,4 +1,4 @@
-package org.evernet.common.auth.authenticator;
+package org.evernet.auth.authenticator;
 
 import jakarta.servlet.http.HttpServletRequest;
 

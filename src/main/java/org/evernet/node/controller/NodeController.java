@@ -2,7 +2,7 @@ package org.evernet.node.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.evernet.common.auth.AuthenticatedAdminController;
+import org.evernet.auth.AuthenticatedAdminController;
 import org.evernet.node.model.Node;
 import org.evernet.node.request.NodeCreationRequest;
 import org.evernet.node.request.NodeUpdateRequest;

@@ -8,7 +8,7 @@ import org.evernet.actor.request.ActorTokenRequest;
 import org.evernet.actor.response.ActorTokenResponse;
 import org.evernet.common.address.ActorReference;
 import org.evernet.common.address.NodeReference;
-import org.evernet.common.auth.Jwt;
+import org.evernet.auth.Jwt;
 import org.evernet.common.exception.AuthenticationException;
 import org.evernet.common.exception.ClientException;
 import org.evernet.common.exception.NotAllowedException;

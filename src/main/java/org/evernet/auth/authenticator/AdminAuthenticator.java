@@ -1,8 +1,11 @@
-package org.evernet.common.auth.authenticator;
+package org.evernet.auth.authenticator;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.evernet.common.auth.*;
+import org.evernet.auth.AuthenticatedAdmin;
+import org.evernet.auth.AuthenticatedAdminController;
+import org.evernet.auth.Jwt;
+import org.evernet.auth.ThreadLocalWrapper;
 import org.evernet.common.exception.InvalidTokenException;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +13,7 @@ import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
-public class ActorAuthenticator implements Authenticator {
+public class AdminAuthenticator implements Authenticator {
 
     private final Jwt jwt;
 
@@ -18,17 +21,17 @@ public class ActorAuthenticator implements Authenticator {
     public void authenticate(HttpServletRequest request) {
         String jwtToken = AuthUtils.extractToken(request);
 
-        AuthenticatedActor actor = jwt.getActor(jwtToken);
+        AuthenticatedAdmin admin = jwt.getAdmin(jwtToken);
 
-        if (Objects.isNull(actor)) {
+        if (Objects.isNull(admin)) {
             throw new InvalidTokenException();
         }
 
-        ThreadLocalWrapper.setActor(actor);
+        ThreadLocalWrapper.setAdmin(admin);
     }
 
     @Override
     public Class<?> getType() {
-        return AuthenticatedActorController.class;
+        return AuthenticatedAdminController.class;
     }
 }

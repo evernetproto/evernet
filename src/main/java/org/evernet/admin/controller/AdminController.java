@@ -7,7 +7,7 @@ import org.evernet.admin.request.AdminAdditionRequest;
 import org.evernet.admin.request.AdminPasswordChangeRequest;
 import org.evernet.admin.response.AdminPasswordResponse;
 import org.evernet.admin.service.AdminService;
-import org.evernet.common.auth.AuthenticatedAdminController;
+import org.evernet.auth.AuthenticatedAdminController;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,4 +1,4 @@
-package org.evernet.common.auth;
+package org.evernet.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

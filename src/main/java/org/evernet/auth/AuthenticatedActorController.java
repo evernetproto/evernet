@@ -1,4 +1,4 @@
-package org.evernet.common.auth;
+package org.evernet.auth;
 
 import org.evernet.common.address.ActorReference;
 import org.evernet.common.address.NodeReference;

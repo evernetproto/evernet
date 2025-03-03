@@ -1,8 +1,8 @@
-package org.evernet.common.auth;
+package org.evernet.auth;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.evernet.common.auth.authenticator.Authenticator;
+import org.evernet.auth.authenticator.Authenticator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;

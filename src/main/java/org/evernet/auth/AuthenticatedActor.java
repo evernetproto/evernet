@@ -1,4 +1,4 @@
-package org.evernet.common.auth;
+package org.evernet.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

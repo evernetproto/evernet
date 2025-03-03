@@ -1,4 +1,4 @@
-package org.evernet.common.auth;
+package org.evernet.auth;
 
 public class AuthenticatedAdminController {
 
