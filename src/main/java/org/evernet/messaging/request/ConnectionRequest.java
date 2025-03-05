@@ -18,7 +18,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(NON_NULL)
-public class ConnectionCreationRequest {
+public class ConnectionRequest {
 
     @NotNull(message = "Connection type is required")
     private ConnectionType type;
