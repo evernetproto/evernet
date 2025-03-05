@@ -65,7 +65,7 @@ public class ConnectionGroupService {
         return connectionGroup;
     }
 
-    private Boolean identifierExists(String identifier, String actorAddress, String nodeIdentifier) {
+    public Boolean identifierExists(String identifier, String actorAddress, String nodeIdentifier) {
         return connectionGroupRepository.existsByIdentifierAndActorAddressAndNodeIdentifier(identifier, actorAddress, nodeIdentifier);
     }
 }
