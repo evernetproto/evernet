@@ -3,6 +3,7 @@ package xyz.evernet.vertex.service;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import xyz.evernet.exception.ServerException;
 import xyz.evernet.util.Random;
 import xyz.evernet.vertex.model.VertexConfig;
 import xyz.evernet.vertex.repository.VertexConfigRepository;
@@ -23,5 +24,12 @@ public class VertexConfigService {
                             .value(Random.generateRandomString(256))
                     .build());
         }
+    }
+
+    public String getJwtSigningKey() {
+        VertexConfig config = vertexConfigRepository.findByKey(KEY_JWT_SIGNING_KEY)
+                .orElseThrow(() -> new ServerException("Vertex is not initialized"));
+
+        return config.getValue();
     }
 }
