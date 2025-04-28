@@ -37,3 +37,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+*.sqlite3
+*.sqlite
+*.db
