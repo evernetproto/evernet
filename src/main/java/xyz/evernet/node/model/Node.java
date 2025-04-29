@@ -1,5 +1,6 @@
-package xyz.evernet.vertex.model;
+package xyz.evernet.node.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
@@ -21,16 +22,27 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(NON_NULL)
 @Entity
-@Table(name = "vertex_configs")
-public class VertexConfig {
+@Table(name = "nodes")
+public class Node {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private String key;
+    private String identifier;
 
-    private String value;
+    private String displayName;
+
+    private String description;
+
+    @JsonIgnore
+    private String signingPrivateKey;
+
+    private String signingPublicKey;
+
+    private Boolean open;
+
+    private String creator;
 
     @CreationTimestamp
     private Instant createdAt;
