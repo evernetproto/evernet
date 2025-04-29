@@ -5,12 +5,14 @@ import org.springframework.stereotype.Service;
 import xyz.evernet.admin.model.Admin;
 import xyz.evernet.admin.repository.AdminRepository;
 import xyz.evernet.admin.request.AdminInitRequest;
+import xyz.evernet.admin.request.AdminPasswordChangeRequest;
 import xyz.evernet.admin.request.AdminTokenRequest;
 import xyz.evernet.admin.response.AdminTokenResponse;
 import xyz.evernet.core.auth.AuthenticatedAdmin;
 import xyz.evernet.core.auth.Jwt;
 import xyz.evernet.core.exception.AuthenticationException;
 import xyz.evernet.core.exception.NotAllowedException;
+import xyz.evernet.core.exception.NotFoundException;
 import xyz.evernet.core.util.Password;
 import xyz.evernet.vertex.service.VertexConfigService;
 
@@ -50,5 +52,16 @@ public class AdminService {
         String token = jwt.getAdminToken(AuthenticatedAdmin.builder().identifier(admin.getIdentifier()).build());
 
         return AdminTokenResponse.builder().token(token).build();
+    }
+
+    public Admin get(String identifier) {
+        return adminRepository.findByIdentifier(identifier)
+                .orElseThrow(() -> new NotFoundException(String.format("Admin %s not found", identifier)));
+    }
+
+    public Admin changePassword(String identifier, AdminPasswordChangeRequest request) {
+        Admin admin = get(identifier);
+        admin.setPassword(Password.hash(request.getPassword()));
+        return adminRepository.save(admin);
     }
 }
