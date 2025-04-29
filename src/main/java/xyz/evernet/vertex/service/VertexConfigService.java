@@ -16,6 +16,8 @@ public class VertexConfigService {
 
     private static final String KEY_JWT_SIGNING_KEY = "JWT_SIGNING_KEY";
 
+    private static final String KEY_VERTEX_ENDPOINT = "VERTEX_ENDPOINT";
+
     @PostConstruct
     public void init() {
         if (!vertexConfigRepository.existsByKey(KEY_JWT_SIGNING_KEY)) {
@@ -31,5 +33,19 @@ public class VertexConfigService {
                 .orElseThrow(() -> new ServerException("Vertex is not initialized"));
 
         return config.getValue();
+    }
+
+    public void setVertexEndpoint(String vertexEndpoint) {
+        VertexConfig vertexConfig = vertexConfigRepository.findByKey(KEY_VERTEX_ENDPOINT)
+                .orElse(VertexConfig.builder().key(KEY_VERTEX_ENDPOINT).value(vertexEndpoint).build());
+        vertexConfig.setValue(vertexEndpoint);
+        vertexConfigRepository.save(vertexConfig);
+    }
+
+    public String getVertexEndpoint() {
+        VertexConfig vertexConfig = vertexConfigRepository.findByKey(KEY_VERTEX_ENDPOINT)
+                .orElseThrow(() -> new ServerException("Vertex is not initialized"));
+
+        return vertexConfig.getValue();
     }
 }

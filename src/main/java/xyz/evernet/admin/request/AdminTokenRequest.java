@@ -16,14 +16,11 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(NON_NULL)
-public class AdminInitRequest {
+public class AdminTokenRequest {
 
     @NotBlank(message = "Identifier is required")
     private String identifier;
 
     @NotBlank(message = "Password is required")
     private String password;
-
-    @NotBlank(message = "Vertex endpoint is required")
-    private String vertexEndpoint;
 }

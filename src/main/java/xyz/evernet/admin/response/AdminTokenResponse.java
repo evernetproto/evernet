@@ -1,8 +1,7 @@
-package xyz.evernet.admin.request;
+package xyz.evernet.admin.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,14 +15,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(NON_NULL)
-public class AdminInitRequest {
+public class AdminTokenResponse {
 
-    @NotBlank(message = "Identifier is required")
-    private String identifier;
-
-    @NotBlank(message = "Password is required")
-    private String password;
-
-    @NotBlank(message = "Vertex endpoint is required")
-    private String vertexEndpoint;
+    private String token;
 }
