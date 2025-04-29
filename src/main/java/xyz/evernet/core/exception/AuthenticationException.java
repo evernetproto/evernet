@@ -1,4 +1,4 @@
-package xyz.evernet.exception;
+package xyz.evernet.core.exception;
 
 public class AuthenticationException extends RuntimeException {
 

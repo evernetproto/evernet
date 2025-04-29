@@ -3,8 +3,8 @@ package xyz.evernet.vertex.service;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import xyz.evernet.exception.ServerException;
-import xyz.evernet.util.Random;
+import xyz.evernet.core.exception.ServerException;
+import xyz.evernet.core.util.Random;
 import xyz.evernet.vertex.model.VertexConfig;
 import xyz.evernet.vertex.repository.VertexConfigRepository;
 

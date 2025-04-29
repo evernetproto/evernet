@@ -1,4 +1,4 @@
-package xyz.evernet.util;
+package xyz.evernet.core.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

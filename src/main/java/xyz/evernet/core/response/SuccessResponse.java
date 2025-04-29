@@ -1,4 +1,4 @@
-package xyz.evernet.response;
+package xyz.evernet.core.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,16 +15,13 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(NON_NULL)
-public class ErrorResponse {
+public class SuccessResponse {
 
     private Boolean success;
 
     private String message;
 
-    public static ErrorResponse withMessage(String message) {
-        return ErrorResponse.builder()
-                .message(message)
-                .success(false)
-                .build();
+    public static SuccessResponse withMessage(String message) {
+        return SuccessResponse.builder().success(true).message(message).build();
     }
 }

@@ -1,4 +1,4 @@
-package xyz.evernet.util;
+package xyz.evernet.core.util;
 
 import lombok.experimental.UtilityClass;
 import org.mindrot.jbcrypt.BCrypt;
