@@ -27,8 +27,25 @@ class NodeService:
             "identifier": identifier
         }
 
-    def fetch(self):
-        pass
+    def fetch(self, page: int = 0, size: int = 50) -> list[dict]:
+        cursor = self.db.cursor()
+        nodes = cursor.execute("SELECT identifier, display_name, description, open, signing_public_key, creator, created_at, updated_at FROM  nodes LIMIT ? OFFSET ?", (size, page * size)).fetchall()
+        cursor.close()
+        result = []
+
+        for node in nodes:
+            result.append({
+                "identifier": node[0],
+                "display_name": node[1],
+                "description": node[2],
+                "open": node[3],
+                "signing_public_key": node[4],
+                "creator": node[5],
+                "created_at": node[6],
+                "updated_at": node[7],
+            })
+
+        return result
 
     def get(self):
         pass

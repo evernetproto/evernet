@@ -1,7 +1,7 @@
 from flask import Flask
 
 from node import NodeService
-from utils.api import authenticate_admin, required_param, optional_param
+from utils.api import authenticate_admin, required_param, optional_param, size, page
 
 
 class NodeAPI:
@@ -21,3 +21,8 @@ class NodeAPI:
                 required_param("open", bool),
                 admin["identifier"]
             )
+
+        @self.app.get("/api/v1/nodes")
+        @authenticate_admin
+        def fetch_nodes(_):
+            return self.node_service.fetch(page(), size())

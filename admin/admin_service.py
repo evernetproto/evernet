@@ -100,9 +100,10 @@ class AdminService:
             "password": password
         }
 
-    def fetch(self, page: int, size: int) -> list[dict]:
+    def fetch(self, page: int = 0, size: int = 50) -> list[dict]:
         cursor = self.db.cursor()
         users = cursor.execute("SELECT identifier, creator, created_at, updated_at FROM admins LIMIT ? OFFSET ?", (size, page * size)).fetchall()
+        cursor.close()
         result = []
         for user in users:
             result.append({
@@ -131,6 +132,7 @@ class AdminService:
         cursor.close()
         return {
             "identifier": identifier,
+            "password": password
         }
 
     def run_migrations(self):
