@@ -5,7 +5,7 @@ from dotenv import *
 from flask import Flask, request, jsonify, g
 
 from admin import AdminService, AdminAPI
-from node import NodeService, NodeAPI
+from node import NodeService, NodeAdminAPI
 from vertex import HealthCheckAPI, VertexConfigService, VertexService, VertexAPI
 
 load_dotenv()
@@ -25,7 +25,7 @@ node_service = NodeService(db)
 HealthCheckAPI(app).register()
 VertexAPI(app, vertex_service).register()
 AdminAPI(app, admin_service).register()
-NodeAPI(app, node_service).register()
+NodeAdminAPI(app, node_service).register()
 
 
 @app.before_request
