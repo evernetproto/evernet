@@ -8,7 +8,7 @@ class NodeService:
         self.db = db
         self.run_migrations()
 
-    def create(self, identifier: str, display_name: str, description: str, open: bool, creator: str) -> dict:
+    def create(self, identifier: str, display_name: str, description: str, is_open: bool, creator: str) -> dict:
         if self.identifier_exists(identifier):
             raise Exception(f"Node {identifier} already exists")
 
@@ -19,7 +19,7 @@ class NodeService:
 
         cursor = self.db.cursor()
         cursor.execute("INSERT INTO nodes (identifier, display_name, description, open, signing_private_key, signing_public_key, creator, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                       (identifier, display_name, description, open, signing_private_key, signing_public_key, creator, now, now))
+                       (identifier, display_name, description, is_open, signing_private_key, signing_public_key, creator, now, now))
         self.db.commit()
         cursor.close()
 
@@ -66,8 +66,18 @@ class NodeService:
             "updated_at": node[7],
         }
 
-    def update(self):
-        pass
+    def update(self, identifier: str, display_name: str, description: str, is_open: bool) -> dict:
+        cursor = self.db.cursor()
+        result = cursor.execute("UPDATE nodes SET display_name = ?, description = ?, open = ? WHERE identifier = ?", (display_name, description, is_open, identifier))
+        self.db.commit()
+        cursor.close()
+
+        if result.rowcount == 0:
+            raise Exception(f"Node {identifier} not found")
+
+        return {
+            "identifier": identifier
+        }
 
     def delete(self):
         pass

@@ -31,3 +31,13 @@ class NodeAPI:
         @authenticate_admin
         def get_node(_, identifier):
             return self.node_service.get(identifier)
+
+        @self.app.put("/api/v1/nodes/<identifier>")
+        @authenticate_admin
+        def update_node(_, identifier):
+            return self.node_service.update(
+                identifier,
+                required_param("display_name"),
+                optional_param("description"),
+                required_param("open", bool)
+            )
