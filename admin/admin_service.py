@@ -52,6 +52,20 @@ class AdminService:
             }, algorithm="HS256", key=jwt_signing_key),
         }
 
+    def get(self, identifier: str) -> dict:
+        cursor = self.db.cursor()
+        admin = cursor.execute("SELECT identifier, creator, created_at, updated_at FROM admins WHERE identifier=?", (identifier,)).fetchone()
+
+        if not admin:
+            raise Exception(f"Admin {identifier} not found")
+
+        return {
+            "identifier": admin[0],
+            "creator": admin[1],
+            "created_at": admin[2],
+            "updated_at": admin[3],
+        }
+
     def run_migrations(self):
         cursor = self.db.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS admins (identifier TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, creator TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)")
