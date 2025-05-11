@@ -100,8 +100,18 @@ class AdminService:
             "password": password
         }
 
-    def fetch(self):
-        pass
+    def fetch(self, page: int, size: int) -> list[dict]:
+        cursor = self.db.cursor()
+        users = cursor.execute("SELECT identifier, creator, created_at, updated_at FROM admins LIMIT ? OFFSET ?", (size, page * size)).fetchall()
+        result = []
+        for user in users:
+            result.append({
+                "identifier": user[0],
+                "creator": user[1],
+                "created_at": user[2],
+                "updated_at": user[3],
+            })
+        return result
 
     def delete(self):
         pass
