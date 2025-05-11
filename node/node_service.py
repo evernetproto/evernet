@@ -8,7 +8,7 @@ class NodeService:
         self.db = db
         self.run_migrations()
 
-    def create(self, identifier: str, display_name: str, description: str, creator: str) -> dict:
+    def create(self, identifier: str, display_name: str, description: str, open: bool, creator: str) -> dict:
         if self.identifier_exists(identifier):
             raise Exception(f"Node {identifier} already exists")
 
@@ -18,8 +18,8 @@ class NodeService:
         signing_public_key = public_key_to_string(public_key)
 
         cursor = self.db.cursor()
-        cursor.execute("INSERT INTO nodes (identifier, display_name, description, signing_private_key, signing_public_key, creator, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                       (identifier, display_name, description, signing_private_key, signing_public_key, creator, now, now))
+        cursor.execute("INSERT INTO nodes (identifier, display_name, description, open, signing_private_key, signing_public_key, creator, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                       (identifier, display_name, description, open, signing_private_key, signing_public_key, creator, now, now))
         self.db.commit()
         cursor.close()
 
@@ -55,6 +55,7 @@ class NodeService:
                            identifier          TEXT    NOT NULL PRIMARY KEY,
                            display_name        TEXT    NOT NULL,
                            description         TEXT,
+                           open                BOOLEAN NOT NULL,
                            signing_private_key TEXT    NOT NULL,
                            signing_public_key  TEXT    NOT NULL,
                            creator             TEXT    NOT NULL,

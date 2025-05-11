@@ -18,5 +18,6 @@ class NodeAPI:
                 required_param("identifier"),
                 required_param("display_name"),
                 optional_param("description"),
+                required_param("open", bool),
                 admin["identifier"]
             )
