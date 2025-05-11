@@ -19,3 +19,10 @@ class AdminAPI:
                 required_param("password"),
                 required_param("vertex_endpoint")
             )
+
+        @self.app.post("/api/v1/admins/token")
+        def get_admin_token():
+            return self.admin_service.get_token(
+                required_param("identifier"),
+                required_param("password")
+            )

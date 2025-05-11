@@ -23,3 +23,9 @@ class VertexService:
         return {
             "endpoint": self.vertex_config_service.get("VERTEX_ENDPOINT"),
         }
+
+    def get_vertex_endpoint(self) -> str:
+        return self.vertex_config_service.get("VERTEX_ENDPOINT")
+
+    def get_jwt_signing_key(self) -> str:
+        return self.vertex_config_service.get("JWT_SIGNING_KEY")

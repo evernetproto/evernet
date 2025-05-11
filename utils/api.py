@@ -47,10 +47,18 @@ def authenticate_admin(f):
             raise Exception("Invalid access token")
 
         try:
-            data = jwt.decode(token, g.jwt_signing_key, algorithms=['HS256'], issuer=g.vertex_endpoint,
-                              audience=g.vertex_endpoint)
+            vertex_endpoint = g.vertex_service.get_vertex_endpoint()
+            data = jwt.decode(
+                token,
+                g.vertex_service.get_jwt_signing_key(),
+                algorithms=['HS256'],
+                issuer=vertex_endpoint,
+                audience=vertex_endpoint
+            )
+
             if data["type"] != "admin":
                 raise Exception("Invalid access token")
+
             current_admin = {
                 "identifier": data["sub"]
             }
