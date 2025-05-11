@@ -113,11 +113,25 @@ class AdminService:
             })
         return result
 
-    def delete(self):
-        pass
+    def delete(self, identifier: str) -> dict:
+        cursor = self.db.cursor()
+        cursor.execute("DELETE FROM admins WHERE identifier = ?", (identifier,))
+        self.db.commit()
+        cursor.close()
+        return {
+            "identifier": identifier,
+        }
 
-    def reset_password(self):
-        pass
+    def reset_password(self, identifier: str) -> dict:
+        password = self.password_generator.generate()
+        hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        cursor = self.db.cursor()
+        cursor.execute("UPDATE admins SET password=? WHERE identifier=?", (hashed_password, identifier))
+        self.db.commit()
+        cursor.close()
+        return {
+            "identifier": identifier,
+        }
 
     def run_migrations(self):
         cursor = self.db.cursor()
