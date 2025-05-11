@@ -18,8 +18,10 @@ class NodeService:
         signing_public_key = public_key_to_string(public_key)
 
         cursor = self.db.cursor()
-        cursor.execute("INSERT INTO nodes (identifier, display_name, description, open, signing_private_key, signing_public_key, creator, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                       (identifier, display_name, description, is_open, signing_private_key, signing_public_key, creator, now, now))
+        cursor.execute(
+            "INSERT INTO nodes (identifier, display_name, description, open, signing_private_key, signing_public_key, creator, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (identifier, display_name, description, is_open, signing_private_key, signing_public_key, creator, now,
+             now))
         self.db.commit()
         cursor.close()
 
@@ -29,7 +31,9 @@ class NodeService:
 
     def fetch(self, page: int = 0, size: int = 50) -> list[dict]:
         cursor = self.db.cursor()
-        nodes = cursor.execute("SELECT identifier, display_name, description, open, signing_public_key, creator, created_at, updated_at FROM  nodes LIMIT ? OFFSET ?", (size, page * size)).fetchall()
+        nodes = cursor.execute(
+            "SELECT identifier, display_name, description, open, signing_public_key, creator, created_at, updated_at FROM  nodes LIMIT ? OFFSET ?",
+            (size, page * size)).fetchall()
         cursor.close()
         result = []
 
@@ -49,7 +53,9 @@ class NodeService:
 
     def get(self, identifier: str) -> dict:
         cursor = self.db.cursor()
-        node = cursor.execute("SELECT identifier, display_name, description, open, signing_public_key, creator, created_at, updated_at FROM nodes WHERE identifier = ?", (identifier,)).fetchone()
+        node = cursor.execute(
+            "SELECT identifier, display_name, description, open, signing_public_key, creator, created_at, updated_at FROM nodes WHERE identifier = ?",
+            (identifier,)).fetchone()
         cursor.close()
 
         if not node:
@@ -67,8 +73,12 @@ class NodeService:
         }
 
     def update(self, identifier: str, display_name: str, description: str, is_open: bool) -> dict:
+        now = int(time.time())
+
         cursor = self.db.cursor()
-        result = cursor.execute("UPDATE nodes SET display_name = ?, description = ?, open = ? WHERE identifier = ?", (display_name, description, is_open, identifier))
+        result = cursor.execute(
+            "UPDATE nodes SET display_name = ?, description = ?, open = ?, updated_at = ? WHERE identifier = ?",
+            (display_name, description, is_open, now, identifier))
         self.db.commit()
         cursor.close()
 
@@ -92,8 +102,26 @@ class NodeService:
             "identifier": identifier
         }
 
-    def reset_signing_key(self):
-        pass
+    def reset_signing_keys(self, identifier: str) -> dict:
+        now = int(time.time())
+        private_key, public_key = generate_ed25519_keys()
+        signing_private_key = private_key_to_string(private_key)
+        signing_public_key = public_key_to_string(public_key)
+
+        cursor = self.db.cursor()
+        result = cursor.execute(
+            "UPDATE nodes SET signing_private_key = ?, signing_public_key = ?, updated_at = ? WHERE identifier = ?",
+            (signing_private_key, signing_public_key, now, identifier))
+        self.db.commit()
+        cursor.close()
+
+        if result.rowcount == 0:
+            raise Exception(f"Node {identifier} not found")
+
+        return {
+            "identifier": identifier,
+            "signing_public_key": signing_public_key,
+        }
 
     def identifier_exists(self, identifier: str) -> bool:
         cursor = self.db.cursor()

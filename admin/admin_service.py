@@ -70,8 +70,10 @@ class AdminService:
 
     def change_password(self, identifier: str, password: str) -> dict:
         hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        now = int(time.time())
+
         cursor = self.db.cursor()
-        result = cursor.execute("UPDATE admins SET password=? WHERE identifier=?", (hashed_password, identifier))
+        result = cursor.execute("UPDATE admins SET password=?, updated_at = ? WHERE identifier=?", (hashed_password, now, identifier))
         self.db.commit()
         cursor.close()
 
@@ -133,8 +135,9 @@ class AdminService:
     def reset_password(self, identifier: str) -> dict:
         password = self.password_generator.generate()
         hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        now = int(time.time())
         cursor = self.db.cursor()
-        result = cursor.execute("UPDATE admins SET password=? WHERE identifier=?", (hashed_password, identifier))
+        result = cursor.execute("UPDATE admins SET password=?, updated_at = ? WHERE identifier=?", (hashed_password, now, identifier))
         self.db.commit()
         cursor.close()
 
