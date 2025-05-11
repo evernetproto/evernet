@@ -1,6 +1,6 @@
 from flask import Flask
 
-from admin import AdminService
+from .admin_service import AdminService
 from utils.api import required_param, authenticate_admin, size, page
 
 
@@ -11,7 +11,6 @@ class AdminAPI:
         self.admin_service = admin_service
 
     def register(self):
-
         @self.app.post("/api/v1/admins/init")
         def init_admin():
             return self.admin_service.init(

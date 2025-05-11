@@ -1,6 +1,7 @@
-from flask import g, request
 from functools import wraps
+
 import jwt
+from flask import g, request
 
 
 def required_param(key: str, data_type=str):

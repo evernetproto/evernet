@@ -1,6 +1,6 @@
 from password_generator import PasswordGenerator
 
-from vertex import VertexConfigService
+from .vertex_config_service import VertexConfigService
 
 
 class VertexService:

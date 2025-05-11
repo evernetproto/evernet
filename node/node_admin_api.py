@@ -1,6 +1,6 @@
 from flask import Flask
 
-from node import NodeService
+from .node_service import NodeService
 from utils.api import authenticate_admin, required_param, optional_param, size, page
 
 
@@ -10,7 +10,6 @@ class NodeAdminAPI:
         self.node_service = node_service
 
     def register(self):
-
         @self.app.post("/api/v1/admins/nodes")
         @authenticate_admin
         def create_node(admin):

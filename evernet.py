@@ -1,6 +1,7 @@
 import os
-import traceback
 import sqlite3
+import traceback
+
 from dotenv import *
 from flask import Flask, request, jsonify, g
 

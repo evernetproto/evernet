@@ -26,7 +26,9 @@ class AdminService:
         hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         now = int(time.time())
 
-        cursor.execute("INSERT INTO admins (identifier, password, creator, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", (identifier, hashed_password, identifier, now, now))
+        cursor.execute(
+            "INSERT INTO admins (identifier, password, creator, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+            (identifier, hashed_password, identifier, now, now))
         self.db.commit()
         cursor.close()
 
@@ -56,7 +58,8 @@ class AdminService:
 
     def get(self, identifier: str) -> dict:
         cursor = self.db.cursor()
-        admin = cursor.execute("SELECT identifier, creator, created_at, updated_at FROM admins WHERE identifier=?", (identifier,)).fetchone()
+        admin = cursor.execute("SELECT identifier, creator, created_at, updated_at FROM admins WHERE identifier=?",
+                               (identifier,)).fetchone()
 
         if not admin:
             raise Exception(f"Admin {identifier} not found")
@@ -73,7 +76,8 @@ class AdminService:
         now = int(time.time())
 
         cursor = self.db.cursor()
-        result = cursor.execute("UPDATE admins SET password=?, updated_at = ? WHERE identifier=?", (hashed_password, now, identifier))
+        result = cursor.execute("UPDATE admins SET password=?, updated_at = ? WHERE identifier=?",
+                                (hashed_password, now, identifier))
         self.db.commit()
         cursor.close()
 
@@ -96,7 +100,9 @@ class AdminService:
         if count > 0:
             raise Exception(f"Admin identifier {identifier} is already taken")
 
-        cursor.execute("INSERT INTO admins (identifier, password, creator, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", (identifier, hashed_password, creator, now, now))
+        cursor.execute(
+            "INSERT INTO admins (identifier, password, creator, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+            (identifier, hashed_password, creator, now, now))
         self.db.commit()
         cursor.close()
 
@@ -107,7 +113,8 @@ class AdminService:
 
     def fetch(self, page: int = 0, size: int = 50) -> list[dict]:
         cursor = self.db.cursor()
-        users = cursor.execute("SELECT identifier, creator, created_at, updated_at FROM admins LIMIT ? OFFSET ?", (size, page * size)).fetchall()
+        users = cursor.execute("SELECT identifier, creator, created_at, updated_at FROM admins LIMIT ? OFFSET ?",
+                               (size, page * size)).fetchall()
         cursor.close()
         result = []
         for user in users:
@@ -137,7 +144,8 @@ class AdminService:
         hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         now = int(time.time())
         cursor = self.db.cursor()
-        result = cursor.execute("UPDATE admins SET password=?, updated_at = ? WHERE identifier=?", (hashed_password, now, identifier))
+        result = cursor.execute("UPDATE admins SET password=?, updated_at = ? WHERE identifier=?",
+                                (hashed_password, now, identifier))
         self.db.commit()
         cursor.close()
 
@@ -151,6 +159,14 @@ class AdminService:
 
     def run_migrations(self):
         cursor = self.db.cursor()
-        cursor.execute("CREATE TABLE IF NOT EXISTS admins (identifier TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, creator TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)")
+        cursor.execute("""CREATE TABLE IF NOT EXISTS admins
+                          (
+                              identifier TEXT    NOT NULL PRIMARY KEY,
+                              password   TEXT    NOT NULL,
+                              creator    TEXT    NOT NULL,
+                              created_at INTEGER NOT NULL,
+                              updated_at INTEGER NOT NULL
+                          )
+                       """)
         self.db.commit()
         cursor.close()

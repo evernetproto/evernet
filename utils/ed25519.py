@@ -1,6 +1,7 @@
+import base64
+
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
-import base64
 
 
 def generate_ed25519_keys() -> (ed25519.Ed25519PrivateKey, ed25519.Ed25519PublicKey):
