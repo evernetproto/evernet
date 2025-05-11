@@ -5,6 +5,7 @@ from dotenv import *
 from flask import Flask, request, jsonify, g
 
 from admin import AdminService, AdminAPI
+from node import NodeService, NodeAPI
 from vertex import HealthCheckAPI, VertexConfigService, VertexService, VertexAPI
 
 load_dotenv()
@@ -19,10 +20,12 @@ db = sqlite3.connect(f"{data_path}/evernet.sqlite", check_same_thread=False)
 vertex_config_service = VertexConfigService(db)
 vertex_service = VertexService(vertex_config_service)
 admin_service = AdminService(db, vertex_service)
+node_service = NodeService(db)
 
 HealthCheckAPI(app).register()
 VertexAPI(app, vertex_service).register()
 AdminAPI(app, admin_service).register()
+NodeAPI(app, node_service).register()
 
 
 @app.before_request

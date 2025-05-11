@@ -24,7 +24,8 @@ class VertexConfigService:
 
     def get(self, config_key: str) -> str:
         cursor = self.db.cursor()
-        config = cursor.execute("SELECT config_value FROM vertex_configs WHERE config_key = ?", (config_key,)).fetchone()
+        config = cursor.execute("SELECT config_value FROM vertex_configs WHERE config_key = ?",
+                                (config_key,)).fetchone()
         cursor.close()
 
         if not config:
@@ -34,27 +35,28 @@ class VertexConfigService:
 
     def run_migrations(self):
         cursor = self.db.cursor()
-        query = '''CREATE TABLE IF NOT EXISTS vertex_configs
-                   (
-                       config_key
-                       TEXT
-                       NOT
-                       NULL
-                       PRIMARY
-                       KEY,
-                       config_value
-                       TEXT
-                       NOT
-                       NULL,
-                       created_at
-                       INTEGER
-                       NOT
-                       NULL,
-                       updated_at
-                       INTEGER
-                       NOT
-                       NULL
-                   )'''
-        cursor.execute(query)
+        cursor.execute("""
+                       CREATE TABLE IF NOT EXISTS vertex_configs
+                       (
+                           config_key
+                           TEXT
+                           NOT
+                           NULL
+                           PRIMARY
+                           KEY,
+                           config_value
+                           TEXT
+                           NOT
+                           NULL,
+                           created_at
+                           INTEGER
+                           NOT
+                           NULL,
+                           updated_at
+                           INTEGER
+                           NOT
+                           NULL
+                       )
+                       """)
         self.db.commit()
         cursor.close()
