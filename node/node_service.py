@@ -47,8 +47,24 @@ class NodeService:
 
         return result
 
-    def get(self):
-        pass
+    def get(self, identifier: str) -> dict:
+        cursor = self.db.cursor()
+        node = cursor.execute("SELECT identifier, display_name, description, open, signing_public_key, creator, created_at, updated_at FROM nodes WHERE identifier = ?", (identifier,)).fetchone()
+        cursor.close()
+
+        if not node:
+            raise Exception("Node not found")
+
+        return {
+            "identifier": node[0],
+            "display_name": node[1],
+            "description": node[2],
+            "open": node[3],
+            "signing_public_key": node[4],
+            "creator": node[5],
+            "created_at": node[6],
+            "updated_at": node[7],
+        }
 
     def update(self):
         pass

@@ -26,3 +26,8 @@ class NodeAPI:
         @authenticate_admin
         def fetch_nodes(_):
             return self.node_service.fetch(page(), size())
+
+        @self.app.get("/api/v1/nodes/<identifier>")
+        @authenticate_admin
+        def get_node(_, identifier):
+            return self.node_service.get(identifier)
