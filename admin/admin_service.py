@@ -3,6 +3,7 @@ import time
 
 import bcrypt
 import jwt
+from password_generator import PasswordGenerator
 
 from vertex import VertexService
 
@@ -11,6 +12,7 @@ class AdminService:
     def __init__(self, db: sqlite3.Connection, vertex_service: VertexService):
         self.db = db
         self.vertex_service = vertex_service
+        self.password_generator = PasswordGenerator()
         self.run_migrations()
 
     def init(self, identifier: str, password: str, vertex_endpoint: str) -> dict:
@@ -76,6 +78,36 @@ class AdminService:
         return {
             "identifier": identifier,
         }
+
+    def add(self, identifier: str, creator: str) -> dict:
+        password = self.password_generator.generate()
+        hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+        now = int(time.time())
+        cursor = self.db.cursor()
+
+        count = cursor.execute("SELECT COUNT(*) FROM admins WHERE identifier = ?", (identifier,)).fetchone()[0]
+
+        if count > 0:
+            raise Exception(f"Admin identifier {identifier} is already taken")
+
+        cursor.execute("INSERT INTO admins (identifier, password, creator, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", (identifier, hashed_password, creator, now, now))
+        self.db.commit()
+        cursor.close()
+
+        return {
+            "identifier": identifier,
+            "password": password
+        }
+
+    def fetch(self):
+        pass
+
+    def delete(self):
+        pass
+
+    def reset_password(self):
+        pass
 
     def run_migrations(self):
         cursor = self.db.cursor()
