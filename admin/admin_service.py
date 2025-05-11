@@ -66,6 +66,17 @@ class AdminService:
             "updated_at": admin[3],
         }
 
+    def change_password(self, identifier: str, password: str) -> dict:
+        hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        cursor = self.db.cursor()
+        cursor.execute("UPDATE admins SET password=? WHERE identifier=?", (hashed_password, identifier))
+        self.db.commit()
+        cursor.close()
+
+        return {
+            "identifier": identifier,
+        }
+
     def run_migrations(self):
         cursor = self.db.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS admins (identifier TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, creator TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)")
