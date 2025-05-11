@@ -79,8 +79,18 @@ class NodeService:
             "identifier": identifier
         }
 
-    def delete(self):
-        pass
+    def delete(self, identifier: str) -> dict:
+        cursor = self.db.cursor()
+        result = cursor.execute("DELETE FROM nodes WHERE identifier = ?", (identifier,))
+        self.db.commit()
+        cursor.close()
+
+        if result.rowcount == 0:
+            raise Exception(f"Node {identifier} not found")
+
+        return {
+            "identifier": identifier
+        }
 
     def reset_signing_key(self):
         pass

@@ -41,3 +41,8 @@ class NodeAPI:
                 optional_param("description"),
                 required_param("open", bool)
             )
+
+        @self.app.delete("/api/v1/nodes/<identifier>")
+        @authenticate_admin
+        def delete_node(_, identifier):
+            return self.node_service.delete(identifier)
