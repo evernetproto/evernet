@@ -1,6 +1,5 @@
 import sqlite3
 import time
-import uuid
 
 import bcrypt
 import jwt
@@ -38,12 +37,12 @@ class ActorService:
             "node_identifier": node_identifier,
         }
 
-    def get_token(self, node_identifier: str, identifier: str, password: str, target_node_address: str=None) -> dict:
+    def get_token(self, node_identifier: str, identifier: str, password: str, target_node_address: str = None) -> dict:
         node = self.node_service.get_private_key(node_identifier)
 
         cursor = self.db.cursor()
         user = cursor.execute("SELECT identifier, password FROM actors WHERE node_identifier = ? AND identifier = ?",
-                       (node["identifier"], identifier)).fetchone()
+                              (node["identifier"], identifier)).fetchone()
         cursor.close()
 
         if not user:
@@ -68,6 +67,27 @@ class ActorService:
 
         return {
             "token": token
+        }
+
+    def get(self, node_identifier: str, identifier: str) -> dict:
+        cursor = self.db.cursor()
+        actor = cursor.execute(
+            "SELECT node_identifier, identifier, display_name, type, description, creator, created_at, updated_at FROM  actors WHERE node_identifier = ? AND identifier = ?",
+            (node_identifier, identifier)).fetchone()
+        cursor.close()
+
+        if not actor:
+            raise Exception(f"Actor {identifier} not found on node {node_identifier}")
+        
+        return {
+            "node_identifier": actor[0],
+            "identifier": actor[1],
+            "display_name": actor[2],
+            "type": actor[3],
+            "description": actor[4],
+            "creator": actor[5],
+            "created_at": actor[6],
+            "updated_at": actor[7],
         }
 
     def identifier_exists(self, identifier: str, node_identifier: str) -> bool:

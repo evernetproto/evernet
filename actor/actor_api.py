@@ -1,6 +1,6 @@
 from flask import Flask
 
-from utils.api import required_param, optional_param
+from utils.api import required_param, optional_param, authenticate_actor
 from .actor_service import ActorService
 
 class ActorAPI:
@@ -29,3 +29,8 @@ class ActorAPI:
                 required_param("password"),
                 optional_param("target_node_address")
             )
+
+        @self.app.get("/api/v1/nodes/<node_identifier>/actors/current")
+        @authenticate_actor(should_be_local=True)
+        def get_actor_details(actor, node_identifier):
+            return self.actor_service.get(node_identifier, actor["identifier"])
