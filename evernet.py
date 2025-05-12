@@ -25,7 +25,7 @@ admin_service = AdminService(db, vertex_service)
 node_service = NodeService(db)
 remote_node_service = RemoteNodeService(vertex_service)
 node_key_service = NodeKeyService(vertex_service, node_service, remote_node_service)
-actor_service = ActorService(db, node_service)
+actor_service = ActorService(db, node_service, vertex_service)
 
 HealthCheckAPI(app).register()
 VertexAPI(app, vertex_service).register()

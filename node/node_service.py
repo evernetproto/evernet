@@ -96,6 +96,21 @@ class NodeService:
             "updated_at": node[7],
         }
 
+    def get_private_key(self, identifier: str) -> dict:
+        cursor = self.db.cursor()
+        node = cursor.execute(
+            "SELECT identifier, signing_private_key FROM nodes WHERE identifier = ?",
+            (identifier,)
+        ).fetchone()
+
+        if not node:
+            raise Exception("Node not found")
+
+        return {
+            "identifier": node[0],
+            "signing_private_key": node[1],
+        }
+
     def get_open(self, identifier: str) -> dict:
         cursor = self.db.cursor()
         node = cursor.execute(

@@ -20,3 +20,12 @@ class ActorAPI:
                 required_param("type"),
                 optional_param("description")
             )
+
+        @self.app.post("/api/v1/nodes/<node_identifier>/actors/token")
+        def get_actor_token(node_identifier):
+            return self.actor_service.get_token(
+                node_identifier,
+                required_param("identifier"),
+                required_param("password"),
+                optional_param("target_node_address")
+            )
