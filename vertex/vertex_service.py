@@ -10,6 +10,9 @@ class VertexService:
         self.password_generator.minlen = 64
         self.password_generator.maxlen = 64
 
+    def is_initialized(self):
+        return self.vertex_config_service.is_initialized()
+
     def init(self, vertex_endpoint: str):
         if self.vertex_config_service.is_initialized():
             return

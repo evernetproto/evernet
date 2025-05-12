@@ -9,6 +9,13 @@ class VertexAPI:
         self.vertex_service = vertex_service
 
     def register(self):
+
+        @self.app.get("/init")
+        def is_vertex_initialized():
+            return {
+                "initialized": self.vertex_service.is_initialized()
+            }
+
         @self.app.get("/info")
         def get_vertex_info():
             return self.vertex_service.info()
