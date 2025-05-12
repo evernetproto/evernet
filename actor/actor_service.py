@@ -3,6 +3,7 @@ import time
 
 import bcrypt
 import jwt
+from password_generator import PasswordGenerator
 
 from node import NodeService
 from utils.ed25519 import string_to_private_key
@@ -14,6 +15,7 @@ class ActorService:
         self.db = db
         self.vertex_service = vertex_service
         self.node_service = node_service
+        self.password_generator = PasswordGenerator()
         self.run_migrations()
 
     def sign_up(self, node_identifier: str, identifier: str, password: str, display_name: str, actor_type: str,
@@ -28,7 +30,7 @@ class ActorService:
         cursor = self.db.cursor()
         cursor.execute(
             "INSERT INTO actors (identifier, password, node_identifier, display_name, type, description, creator, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (identifier, hashed_password, node_identifier, display_name, actor_type, description, identifier, now, now))
+            (identifier, hashed_password, node_identifier, display_name, actor_type, description, None, now, now))
         self.db.commit()
         cursor.close()
 
@@ -148,6 +150,72 @@ class ActorService:
                                (identifier, node_identifier)).fetchone()[0]
         return count > 0
 
+    def add(self, node_identifier: str, identifier: str, display_name: str, actor_type: str, description: str,
+            creator: str) -> dict:
+        if self.identifier_exists(identifier, node_identifier):
+            raise Exception(f"Actor {identifier} already exists on node {node_identifier}")
+
+        password = self.password_generator.generate()
+        hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+        now = int(time.time())
+        cursor = self.db.cursor()
+        cursor.execute(
+            "INSERT INTO actors (node_identifier, identifier, password, display_name, type, description, creator, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (node_identifier, identifier, hashed_password, display_name, actor_type, description, creator, now, now))
+        self.db.commit()
+        cursor.close()
+
+        return {
+            "identifier": identifier,
+            "password": password,
+            "node_identifier": node_identifier
+        }
+
+    def reset_password(self, node_identifier: str, identifier: str) -> dict:
+        password = self.password_generator.generate()
+        hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        now = int(time.time())
+
+        cursor = self.db.cursor()
+        result = cursor.execute(
+            "UPDATE actors SET password = ?, updated_at = ? WHERE node_identifier = ? AND identifier = ?",
+            (hashed_password, now, node_identifier, identifier))
+        self.db.commit()
+        cursor.close()
+
+        if result.rowcount == 0:
+            raise Exception(f"Actor {identifier} not found on node {node_identifier}")
+
+        return {
+            "identifier": identifier,
+            "password": password,
+            "node_identifier": node_identifier
+        }
+
+    def fetch(self, node_identifier: str, page: int = 0, size: int = 50) -> list[dict]:
+        cursor = self.db.cursor()
+        actors = cursor.execute(
+            "SELECT identifier, node_identifier, display_name, type, description, creator, created_at, updated_at FROM actors WHERE node_identifier = ? LIMIT ? OFFSET ?",
+            (node_identifier, page, size * page)
+        ).fetchall()
+        cursor.close()
+
+        result = []
+        for actor in actors:
+            result.append({
+                "identifier": actor[0],
+                "node_identifier": actor[1],
+                "display_name": actor[2],
+                "type": actor[3],
+                "description": actor[4],
+                "creator": actor[5],
+                "created_at": actor[6],
+                "updated_at": actor[7]
+            })
+
+        return result
+
     def run_migrations(self):
         query = """
                 CREATE TABLE IF NOT EXISTS actors
@@ -159,7 +227,7 @@ class ActorService:
                     display_name    TEXT    NOT NULL,
                     type            TEXT    NOT NULL,
                     description     TEXT,
-                    creator         TEXT    NOT NULL,
+                    creator         TEXT,
                     created_at      INTEGER NOT NULL,
                     updated_at      INTEGER NOT NULL,
                     UNIQUE (identifier, node_identifier)
