@@ -30,3 +30,7 @@ class Web:
         @self.app.get("/admin/account")
         def page_admin_account():
             return render_template("admin-account.html")
+
+        @self.app.get("/admins")
+        def page_admins():
+            return render_template("admins.html")

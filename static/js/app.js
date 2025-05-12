@@ -81,6 +81,73 @@ function changeCurrentAdminPassword(password, success, error) {
     })
 }
 
+function addAdmin(identifier, success, error) {
+    $.ajax({
+        url: "/api/v1/admins",
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify({
+            identifier: identifier,
+        }),
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
+function listAdmins(page, size, success, error) {
+    $.ajax({
+        url: "/api/v1/admins",
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        data: {
+            page: page,
+            size: size,
+        },
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
+function getAdmin(identifier, success, error) {
+    $.ajax({
+        url: `/api/v1/admins/${identifier}`,
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
+function resetAdminPassword(identifier, success, error) {
+    $.ajax({
+        url: `/api/v1/admins/${identifier}/password`,
+        type: "PUT",
+        dataType: "json",
+        contentType: "application/json",
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
+function deleteAdmin(identifier, success, error) {
+    $.ajax({
+        url: `/api/v1/admins/${identifier}`,
+        type: "DELETE",
+        dataType: "json",
+        contentType: "application/json",
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
 function addNode(identifier, displayName, description, open, success, error) {
     $.ajax({
         url: "/api/v1/admins/nodes",
