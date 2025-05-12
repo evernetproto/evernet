@@ -5,6 +5,7 @@ import traceback
 from dotenv import *
 from flask import Flask, request, jsonify, g
 
+from actor import ActorService, ActorAPI
 from admin import AdminService, AdminAPI
 from node import NodeService, NodeAdminAPI, NodeAPI, RemoteNodeService, NodeKeyService
 from vertex import HealthCheckAPI, VertexConfigService, VertexService, VertexAPI
@@ -24,12 +25,14 @@ admin_service = AdminService(db, vertex_service)
 node_service = NodeService(db)
 remote_node_service = RemoteNodeService(vertex_service)
 node_key_service = NodeKeyService(vertex_service, node_service, remote_node_service)
+actor_service = ActorService(db, node_service)
 
 HealthCheckAPI(app).register()
 VertexAPI(app, vertex_service).register()
 AdminAPI(app, admin_service).register()
 NodeAdminAPI(app, node_service).register()
 NodeAPI(app, node_service).register()
+ActorAPI(app, actor_service).register()
 
 
 @app.before_request
