@@ -78,7 +78,7 @@ class ActorService:
 
         if not actor:
             raise Exception(f"Actor {identifier} not found on node {node_identifier}")
-        
+
         return {
             "node_identifier": actor[0],
             "identifier": actor[1],
@@ -88,6 +88,58 @@ class ActorService:
             "creator": actor[5],
             "created_at": actor[6],
             "updated_at": actor[7],
+        }
+
+    def update(self, node_identifier: str, identifier: str, display_name: str, actor_type: str, description: str):
+        now = int(time.time())
+        cursor = self.db.cursor()
+        result = cursor.execute(
+            "UPDATE actors SET display_name = ?, type = ?, description = ?, updated_at = ? WHERE node_identifier = ? AND identifier = ?",
+            (display_name, actor_type, description, now, node_identifier, identifier))
+        self.db.commit()
+        cursor.close()
+
+        if result.rowcount == 0:
+            raise Exception(f"Actor {identifier} not found on node {node_identifier}")
+
+        return {
+            "identifier": identifier,
+            "node_identifier": node_identifier
+        }
+
+    def change_password(self, node_identifier: str, identifier: str, password: str) -> dict:
+        now = int(time.time())
+        cursor = self.db.cursor()
+        result = cursor.execute(
+            "UPDATE actors SET password = ?, updated_at = ? WHERE node_identifier = ? AND identifier = ?",
+            (password, now, node_identifier, identifier)
+        )
+        self.db.commit()
+        cursor.close()
+
+        if result.rowcount == 0:
+            raise Exception(f"Actor {identifier} not found on node {node_identifier}")
+
+        return {
+            "identifier": identifier,
+            "node_identifier": node_identifier
+        }
+
+    def delete(self, node_identifier: str, identifier: str) -> dict:
+        cursor = self.db.cursor()
+        result = cursor.execute(
+            "DELETE FROM actors WHERE node_identifier = ? AND identifier = ?",
+            (node_identifier, identifier)
+        )
+        self.db.commit()
+        cursor.close()
+
+        if result.rowcount == 0:
+            raise Exception(f"Actor {identifier} not found on node {node_identifier}")
+
+        return {
+            "identifier": identifier,
+            "node_identifier": node_identifier
         }
 
     def identifier_exists(self, identifier: str, node_identifier: str) -> bool:
