@@ -54,6 +54,33 @@ function getAdminToken(identifier, password, success, error) {
     })
 }
 
+function getCurrentAdmin(success, error) {
+    $.ajax({
+        url: "/api/v1/admins/current",
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
+function changeCurrentAdminPassword(password, success, error) {
+    $.ajax({
+        url: "/api/v1/admins/current/password",
+        type: "PUT",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify({
+            password: password,
+        }),
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
 function addNode(identifier, displayName, description, open, success, error) {
     $.ajax({
         url: "/api/v1/admins/nodes",
