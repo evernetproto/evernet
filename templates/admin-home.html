@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Center - Evernet</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/select2/select2.min.css">
+    <link rel="stylesheet" href="/static/css/app.css">
+    <script type="text/javascript">
+        if (!localStorage.getItem("adminToken")) {
+            window.location = "/admin"
+        }
+    </script>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">evernet</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-navbar"
+                aria-controls="main-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="main-navbar">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/admin/home">Home
+                        <span class="visually-hidden">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admins">Admins</a>
+                </li>
+            </ul>
+            <div class="d-flex justify-content-end">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                           aria-haspopup="true" aria-expanded="false">Settings</a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a class="dropdown-item" href="/admin/account">Account</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/logout">Logout</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row" style="margin-top: 3rem;">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="row">
+                <div class="col-lg-9">
+                    <h2>Nodes</h2>
+                </div>
+                <div class="col-lg-3">
+                    <button class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#add-node-modal">
+                        New Node
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <hr>
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>Identifier</th>
+                            <th>Display Name</th>
+                            <th>Open</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="nodes"></tbody>
+                    </table>
+                    <button class="btn btn-outline-secondary w-100" id="load-more-btn">Load More Nodes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="add-node-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Node</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="message"></div>
+                <form>
+                    <div class="mb-3 form-floating">
+                        <input type="text" class="form-control" id="identifier" placeholder="Identifier">
+                        <label for="identifier" class="form-label">Identifier</label>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input type="text" class="form-control" id="display-name" placeholder="Display Name">
+                        <label for="display-name" class="form-label">Display Name</label>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <textarea class="form-control" rows="3" id="description" placeholder="Description"
+                                  style="height: 100px;"></textarea>
+                        <label for="description" class="form-label">Description</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="open">
+                        <label class="form-check-label" for="open">Is An Open Node Available For SignUp</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="add-node-btn">Add Node</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% raw %}
+<script type="text/x-handlebars-template" id="nodes-template">
+    {{#each nodes}}
+        <tr>
+            <td>{{identifier}}</td>
+            <td>{{display_name}}</td>
+            <td><span class="badge bg-info">{{open}}</span></td>
+            <td>
+                <a class="btn btn-sm btn-secondary" href="/admins/nodes/{{identifier}}">Manage</a>
+            </td>
+        </tr>
+    {{/each}}
+</script>
+{% endraw %}
+
+<script type="text/javascript" src="/static/jquery/jquery-3.7.1.min.js"></script>
+<script type="text/javascript" src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="/static/handlebars/handlebars.min-v4.7.8.js"></script>
+<script type="text/javascript" src="/static/select2/select2.full.min.js"></script>
+<script type="text/javascript" src="/static/js/app.js"></script>
+<script type="text/javascript">
+    const nodesTemplate = Handlebars.compile($("#nodes-template").html())
+
+    function renderNodes(page, size) {
+        listNodes(page, size, function (data) {
+            for (let i = 0; i < data.length; i++) {
+                data[i].open = data[i].open === 1;
+            }
+            $("#nodes").append(nodesTemplate({nodes: data}));
+            if (data.length < size) {
+                $("#load-more-btn").hide()
+            }
+        })
+    }
+
+    $(document).ready(function () {
+        let currentPage = 0
+        let pageSize = 50
+        renderNodes(currentPage, pageSize)
+        $("#load-more-btn").click(function (e) {
+            e.preventDefault();
+            currentPage = currentPage + 1
+            renderNodes(currentPage, pageSize)
+        })
+
+        $("#add-node-btn").click(function (e) {
+            e.preventDefault()
+
+            let identifier = $("#identifier").val().trim()
+            let displayName = $("#display-name").val().trim()
+            let description = $("#description").val().trim()
+            let open = $("#open").is(":checked")
+
+            if (identifier === "") {
+                displayError($("#message"), "Identifier is required")
+                return
+            }
+
+            if (displayName === "") {
+                displayError($("#message"), "Display name is required")
+                return
+            }
+
+            addNode(identifier, displayName, description, open, function (data) {
+                displaySuccess($("#message"), "Node added successfully")
+                $("#nodes").prepend(nodesTemplate({
+                    nodes: [{
+                        identifier: identifier,
+                        display_name: displayName,
+                        description: description,
+                        open: open,
+                    }]
+                }))
+            }, function (data) {
+                displayError($("#message"), data.responseJSON.message)
+            })
+        })
+    })
+</script>
+</body>
+</html>

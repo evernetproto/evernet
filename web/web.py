@@ -22,3 +22,7 @@ class Web:
         @self.app.get("/admin/init")
         def page_admin_init():
             return render_template("admin-init.html")
+
+        @self.app.get("/admin/home")
+        def page_admin_home():
+            return render_template("admin-home.html")

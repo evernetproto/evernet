@@ -6,6 +6,12 @@ function displayError(parent, message) {
     parent.html(`<div class="alert alert-danger">${message}</div>`);
 }
 
+function getAdminHeaders() {
+    return {
+        Authorization: "Bearer " + localStorage.getItem("adminToken"),
+    }
+}
+
 function isInitialized(success, error) {
     $.ajax({
         url: "/init",
@@ -43,6 +49,40 @@ function getAdminToken(identifier, password, success, error) {
             identifier: identifier,
             password: password,
         }),
+        success: success,
+        error: error
+    })
+}
+
+function addNode(identifier, displayName, description, open, success, error) {
+    $.ajax({
+        url: "/api/v1/admins/nodes",
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify({
+            identifier: identifier,
+            display_name: displayName,
+            description: description,
+            open: open,
+        }),
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
+function listNodes(page, size, success, error) {
+    $.ajax({
+        url: "/api/v1/admins/nodes",
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        data: {
+            page: page,
+            size: size,
+        },
+        headers: getAdminHeaders(),
         success: success,
         error: error
     })
