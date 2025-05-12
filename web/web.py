@@ -34,3 +34,7 @@ class Web:
         @self.app.get("/admins")
         def page_admins():
             return render_template("admins.html")
+
+        @self.app.get("/admins/<identifier>")
+        def page_admin_settings(identifier):
+            return render_template("admin-settings.html", identifier=identifier)

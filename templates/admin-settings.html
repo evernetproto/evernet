@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admins - Evernet</title>
+    <title>Manage Admin {{identifier}} - Evernet</title>
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/select2/select2.min.css">
     <link rel="stylesheet" href="/static/css/app.css">
@@ -51,73 +51,59 @@
 <div class="container">
     <div class="row" style="margin-top: 3rem;">
         <div class="col-lg-6 offset-lg-3">
-            <div class="row">
-                <div class="col-lg-9">
-                    <h2>Admins</h2>
-                </div>
-                <div class="col-lg-3">
-                    <button class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#add-admin-modal">
-                        Add Admin
-                    </button>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <hr>
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th>Identifier</th>
-                            <th>Manage</th>
-                        </tr>
-                        </thead>
-                        <tbody id="admins"></tbody>
-                    </table>
-                    <button class="btn btn-outline-secondary w-100" id="load-more-btn">Load More Admins</button>
-                </div>
-            </div>
+            <h2 id="identifier">{{identifier}}</h2>
+            <hr>
+            <h4 style="margin-top: 4rem;">Password Management</h4>
+            <hr>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reset-password-modal">Reset Password</button>
+            <h4 style="margin-top: 4rem;">Danger Zone</h4>
+            <hr>
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-admin-modal">Delete Admin</button>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="add-admin-modal">
+<div class="modal fade" id="delete-admin-modal">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Admin</h5>
+                <h5 class="modal-title">Delete Admin {{identifier}}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true"></span>
                 </button>
             </div>
             <div class="modal-body">
-                <div id="message"></div>
-                <form>
-                    <div class="mb-3 form-floating">
-                        <input type="text" class="form-control" id="identifier" placeholder="Identifier">
-                        <label for="identifier" class="form-label">Identifier</label>
-                    </div>
-                </form>
+                <div id="delete-admin-message"></div>
+                <p>Are you sure you want to delete admin account for {{identifier}}?</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="add-admin-btn">Add Admin</button>
+                <button type="button" class="btn btn-danger" id="delete-admin-btn">Delete Admin</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
-{% raw %}
-<script type="text/x-handlebars-template" id="admins-template">
-    {{#each admins}}
-        <tr>
-            <td>{{identifier}}</td>
-            <td>
-                <a class="btn btn-sm btn-secondary" href="/admins/{{identifier}}">Manage</a>
-            </td>
-        </tr>
-    {{/each}}
-</script>
-{% endraw %}
+<div class="modal fade" id="reset-password-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reset Password for {{identifier}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="reset-password-message"></div>
+                <p>Are you sure you want to reset the password for admin account {{identifier}}?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="reset-password-btn">Reset Password</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript" src="/static/jquery/jquery-3.7.1.min.js"></script>
 <script type="text/javascript" src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -125,46 +111,24 @@
 <script type="text/javascript" src="/static/select2/select2.full.min.js"></script>
 <script type="text/javascript" src="/static/js/app.js"></script>
 <script type="text/javascript">
-    const adminsTemplate = Handlebars.compile($("#admins-template").html())
-
-    function renderAdmins(page, size) {
-        listAdmins(page, size, function (data) {
-            $("#admins").append(adminsTemplate({admins: data}));
-            if (data.length < size) {
-                $("#load-more-btn").hide()
-            }
-        });
-    }
+    const identifier = "{{identifier}}"
 
     $(document).ready(function () {
-        let currentPage = 0;
-        let pageSize = 50
-        renderAdmins(currentPage, pageSize)
-        $("#load-more-btn").click(function (e) {
+        $("#delete-admin-btn").click(function (e) {
             e.preventDefault();
-            currentPage = currentPage + 1;
-            renderAdmins(currentPage, pageSize)
+            deleteAdmin(identifier, function (data) {
+                window.location = "/admins"
+            }, function (data) {
+                displayError($("#delete-admin-message"), data.responseJSON.message)
+            })
         })
 
-        $("#add-admin-btn").click(function (e) {
-            e.preventDefault()
-
-            let identifier = $("#identifier").val().trim()
-
-            if (identifier === "") {
-                displayError($("#message"), "Identifier is required")
-                return
-            }
-
-            addAdmin(identifier, function (data) {
-                displaySuccess($("#message"), `Admin added successfully, password is <pre>${escapeHTML(data.password)}</pre>`)
-                $("#admins").prepend(adminsTemplate({
-                    admins: [{
-                        identifier: identifier,
-                    }]
-                }))
+        $("#reset-password-btn").click(function (e) {
+            e.preventDefault();
+            resetAdminPassword(identifier, function (data) {
+                displaySuccess($("#reset-password-message"), `Password reset successfully, new password is <pre>${escapeHTML(data.password)}</pre>`)
             }, function (data) {
-                displayError($("#message"), data.responseJSON.message)
+                displayError($("#reset-password-message"), data.responseJSON.message)
             })
         })
     })

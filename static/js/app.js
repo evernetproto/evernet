@@ -12,6 +12,15 @@ function getAdminHeaders() {
     }
 }
 
+function escapeHTML(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function isInitialized(success, error) {
     $.ajax({
         url: "/init",
@@ -106,18 +115,6 @@ function listAdmins(page, size, success, error) {
             page: page,
             size: size,
         },
-        headers: getAdminHeaders(),
-        success: success,
-        error: error
-    })
-}
-
-function getAdmin(identifier, success, error) {
-    $.ajax({
-        url: `/api/v1/admins/${identifier}`,
-        type: "GET",
-        dataType: "json",
-        contentType: "application/json",
         headers: getAdminHeaders(),
         success: success,
         error: error
