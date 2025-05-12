@@ -9,6 +9,7 @@ from actor import ActorService, ActorAPI, ActorAdminAPI
 from admin import AdminService, AdminAPI
 from node import NodeService, NodeAdminAPI, NodeAPI, RemoteNodeService, NodeKeyService
 from vertex import HealthCheckAPI, VertexConfigService, VertexService, VertexAPI
+from web import Web
 
 load_dotenv()
 data_path = os.getenv("DATA_PATH")
@@ -34,6 +35,8 @@ NodeAdminAPI(app, node_service).register()
 NodeAPI(app, node_service).register()
 ActorAPI(app, actor_service).register()
 ActorAdminAPI(app, actor_service).register()
+
+Web(app).register()
 
 
 @app.before_request
