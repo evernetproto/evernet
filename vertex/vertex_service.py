@@ -29,3 +29,6 @@ class VertexService:
 
     def get_jwt_signing_key(self) -> str:
         return self.vertex_config_service.get("JWT_SIGNING_KEY")
+
+    def get_federation_protocol(self) -> str:
+        return self.vertex_config_service.get_with_default("FEDERATION_PROTOCOL", "http")

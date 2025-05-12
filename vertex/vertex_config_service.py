@@ -33,6 +33,18 @@ class VertexConfigService:
 
         return config[0]
 
+    def get_with_default(self, config_key: str, default_value: str) -> str:
+        cursor = self.db.cursor()
+
+        config = cursor.execute("SELECT config_value FROM vertex_configs WHERE config_key = ?",
+                                (config_key,)).fetchone()
+        cursor.close()
+
+        if not config:
+            return default_value
+
+        return config[0]
+
     def run_migrations(self):
         cursor = self.db.cursor()
         cursor.execute("""

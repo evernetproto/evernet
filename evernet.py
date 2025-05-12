@@ -6,7 +6,7 @@ from dotenv import *
 from flask import Flask, request, jsonify, g
 
 from admin import AdminService, AdminAPI
-from node import NodeService, NodeAdminAPI, NodeAPI
+from node import NodeService, NodeAdminAPI, NodeAPI, RemoteNodeService, NodeKeyService
 from vertex import HealthCheckAPI, VertexConfigService, VertexService, VertexAPI
 
 load_dotenv()
@@ -22,6 +22,8 @@ vertex_config_service = VertexConfigService(db)
 vertex_service = VertexService(vertex_config_service)
 admin_service = AdminService(db, vertex_service)
 node_service = NodeService(db)
+remote_node_service = RemoteNodeService(vertex_service)
+node_key_service = NodeKeyService(vertex_service, node_service, remote_node_service)
 
 HealthCheckAPI(app).register()
 VertexAPI(app, vertex_service).register()
@@ -34,6 +36,7 @@ NodeAPI(app, node_service).register()
 def before_request():
     g.request_body = request.get_json(force=True, silent=True)
     g.vertex_service = vertex_service
+    g.node_key_service = node_key_service
 
 
 @app.errorhandler(404)

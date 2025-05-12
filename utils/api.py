@@ -69,3 +69,53 @@ def authenticate_admin(f):
         return f(current_admin, *args, **kwargs)
 
     return decorated
+
+
+def authenticate_actor(should_be_local=False):
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            token = None
+
+            if 'Authorization' in request.headers:
+                auth_header = request.headers['Authorization']
+                if auth_header.startswith('Bearer '):
+                    token = auth_header.split(' ')[1]
+
+            if not token:
+                raise Exception("Invalid access token")
+
+            kid = jwt.get_unverified_header(token)["kid"]
+            issuer_vertex_endpoint, issuer_node_identifier, issuer_signing_public_key = g.node_key_service.get_signing_public_key(
+                kid)
+
+            vertex_endpoint = g.vertex_service.get_vertex_endpoint()
+
+            data = jwt.decode(
+                token,
+                issuer_signing_public_key,
+                algorithms=['EdDSA'],
+                issuer="%s/%s" % (issuer_vertex_endpoint, issuer_node_identifier),
+                audience="%s/%s" % (vertex_endpoint, kwargs.get("node_identifier"))
+            )
+
+            if data["type"] != "actor":
+                raise Exception("Invalid access token")
+
+            if should_be_local:
+                if issuer_vertex_endpoint != vertex_endpoint or issuer_node_identifier != kwargs.get("node_identifier"):
+                    raise Exception("You are not allowed to perform this action")
+
+            current_actor = {
+                "identifier": data["sub"],
+                "vertex_endpoint": issuer_vertex_endpoint,
+                "node_identifier": issuer_node_identifier,
+                "node_address": "%s/%s" % (issuer_vertex_endpoint, issuer_node_identifier),
+                "address": "%s/%s/%s" % (issuer_vertex_endpoint, issuer_node_identifier, data["sub"])
+            }
+
+            return f(current_actor, *args, **kwargs)
+
+        return decorated
+
+    return decorator
