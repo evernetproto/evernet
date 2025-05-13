@@ -178,3 +178,56 @@ function listNodes(page, size, success, error) {
         error: error
     })
 }
+
+function getNode(identifier, success, error) {
+    $.ajax({
+        url: `/api/v1/admins/nodes/${identifier}`,
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
+function updateNode(identifier, displayName, description, open, success, error) {
+    $.ajax({
+        url: `/api/v1/admins/nodes/${identifier}`,
+        type: "PUT",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify({
+            display_name: displayName,
+            description: description,
+            open: open,
+        }),
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
+function deleteNode(identifier, success, error) {
+    $.ajax({
+        url: `/api/v1/admins/nodes/${identifier}`,
+        type: "DELETE",
+        dataType: "json",
+        contentType: "application/json",
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
+function resetNodeSigningKeys(identifier, success, error) {
+    $.ajax({
+        url: `/api/v1/admins/nodes/${identifier}/signing-keys`,
+        type: "PUT",
+        dataType: "json",
+        contentType: "application/json",
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}

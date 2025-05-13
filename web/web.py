@@ -27,6 +27,10 @@ class Web:
         def page_admin_home():
             return render_template("admin-home.html")
 
+        @self.app.get("/admin/nodes/<identifier>")
+        def page_admin_node(identifier):
+            return render_template("admin-node.html", identifier=identifier)
+
         @self.app.get("/admin/account")
         def page_admin_account():
             return render_template("admin-account.html")
