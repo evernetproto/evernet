@@ -177,6 +177,46 @@
             $("#update-description").val(data.description)
             $("#update-open").prop("checked", data.open === 1)
         })
+
+        $("#update-node-btn").click(function (e) {
+            e.preventDefault()
+
+            let displayName = $("#update-display-name").val().trim()
+            let description = $("#update-description").val().trim()
+            let open = $("#update-open").is(":checked")
+
+            if (displayName === "") {
+                displayError($("#update-node-message"), "Display name is required")
+            }
+
+            updateNode(identifier, displayName, description, open, function (data) {
+                displaySuccess($("#update-node-message"), "Changes saved successfully")
+                $("#display-name").html(displayName)
+                $("#description").html(description)
+                $("#open").html(open ? "Open" : "Closed")
+            }, function (data) {
+                displayError($("#update-node-message"), data.responseJSON.message)
+            })
+        })
+
+        $("#delete-node-btn").click(function (e) {
+            e.preventDefault()
+            deleteNode(identifier, function (data) {
+                window.location = "/admin/home"
+            }, function (data) {
+                displayError($("#delete-node-message"),  data.responseJSON.message);
+            })
+        })
+
+        $("#reset-signing-key-btn").click(function (e) {
+            e.preventDefault()
+            resetNodeSigningKeys(identifier, function (data) {
+                $("#signing-public-key").html(data.signing_public_key)
+                displaySuccess($("#reset-signing-key-message"), "Signing key reset successfully")
+            }, function (data) {
+                displayError($("#reset-signing-key-message"), data.responseJSON.message)
+            })
+        })
     })
 </script>
 </body>
