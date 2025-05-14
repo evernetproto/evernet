@@ -231,3 +231,90 @@ function resetNodeSigningKeys(identifier, success, error) {
         error: error
     })
 }
+
+function addActor(nodeIdentifier, identifier, displayName, description, type, success, error) {
+    $.ajax({
+        url: `/api/v1/admins/nodes/${nodeIdentifier}/actors`,
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify({
+            identifier: identifier,
+            display_name: displayName,
+            description: description,
+            type: type,
+        }),
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
+function listActors(nodeIdentifier, page, size, success, error) {
+    $.ajax({
+        url: `/api/v1/admins/nodes/${nodeIdentifier}/actors`,
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        headers: getAdminHeaders(),
+        data: {
+            page: page,
+            size: size,
+        },
+        success: success,
+        error: error
+    })
+}
+
+function getActor(nodeIdentifier, identifier, success, error) {
+    $.ajax({
+        url: `/api/v1/admins/nodes/${nodeIdentifier}/actors/${identifier}`,
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
+function updateActor(nodeIdentifier, identifier, displayName, description, type, success, error) {
+    $.ajax({
+        url: `/api/v1/admins/nodes/${nodeIdentifier}/actors/${identifier}`,
+        type: "PUT",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify({
+            display_name: displayName,
+            description: description,
+            type: type,
+        }),
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
+function resetActorPassword(nodeIdentifier, identifier, success, error) {
+    $.ajax({
+        url: `/api/v1/admins/nodes/${nodeIdentifier}/actors/${identifier}/password`,
+        type: "PUT",
+        dataType: "json",
+        contentType: "application/json",
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}
+
+function deleteActor(nodeIdentifier, identifier, success, error) {
+    $.ajax({
+        url: `/api/v1/admins/nodes/${nodeIdentifier}/actors/${identifier}`,
+        type: "DELETE",
+        dataType: "json",
+        contentType: "application/json",
+        headers: getAdminHeaders(),
+        success: success,
+        error: error
+    })
+}

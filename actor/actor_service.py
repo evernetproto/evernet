@@ -197,7 +197,7 @@ class ActorService:
         cursor = self.db.cursor()
         actors = cursor.execute(
             "SELECT identifier, node_identifier, display_name, type, description, creator, created_at, updated_at FROM actors WHERE node_identifier = ? LIMIT ? OFFSET ?",
-            (node_identifier, page, size * page)
+            (node_identifier, size, size * page)
         ).fetchall()
         cursor.close()
 

@@ -42,3 +42,7 @@ class Web:
         @self.app.get("/admins/<identifier>")
         def page_admin_settings(identifier):
             return render_template("admin-settings.html", identifier=identifier)
+
+        @self.app.get("/admin/nodes/<node_identifier>/actors")
+        def page_admin_actors(node_identifier):
+            return render_template("admin-actors.html", node_identifier=node_identifier)
