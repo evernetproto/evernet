@@ -22,7 +22,7 @@ class ActorService:
                 description: str) -> dict:
         node = self.node_service.get_open(node_identifier)
         if self.identifier_exists(identifier, node_identifier):
-            raise Exception(f"Actor {identifier} already exists on node {node["identifier"]}")
+            raise Exception(f"Actor {identifier} already exists on node {node['identifier']}")
 
         hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         now = int(time.time())
