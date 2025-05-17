@@ -318,3 +318,32 @@ function deleteActor(nodeIdentifier, identifier, success, error) {
         error: error
     })
 }
+
+function listOpenNodes(success, error) {
+    $.ajax({
+        url: "/api/v1/nodes",
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        success: success,
+        error: error
+    })
+}
+
+function signUp(nodeIdentifier, identifier, password, type, displayName, description, success, error) {
+    $.ajax({
+        url: `/api/v1/nodes/${nodeIdentifier}/actors/signup`,
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify({
+            identifier: identifier,
+            password: password,
+            type: type,
+            display_name: displayName,
+            description: description,
+        }),
+        success: success,
+        error: error
+    })
+}

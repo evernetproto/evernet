@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Evernet</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/select2/select2.min.css">
+    <link rel="stylesheet" href="/static/css/app.css">
+    <script type="text/javascript">
+        if (localStorage.getItem("token")) {
+            window.location.href = "/home"
+        }
+    </script>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">evernet</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-navbar"
+                aria-controls="main-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="main-navbar">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/">Home
+                        <span class="visually-hidden">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin">Admin</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/docs">Docs</a>
+                </li>
+            </ul>
+            <div class="d-flex">
+                <a class="btn btn-secondary my-2 my-sm-0" href="/login">Login</a>
+                <a class="btn btn-danger my-2 my-sm-0" style="margin-left: 0.5rem" href="/join">Sign Up</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row" style="margin-top: 5rem;">
+        <div class="col-lg-4 offset-lg-4">
+            <div class="card card-body">
+                <h3>Create A New Account</h3>
+                <hr>
+                <div id="message"></div>
+                <form>
+                    <div class="mb-3">
+                        <label for="node-identifier" class="form-label">Node</label>
+                        <select class="form-select" id="node-identifier"></select>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input type="text" class="form-control" id="identifier" placeholder="Identifier">
+                        <label for="identifier" class="form-label">Identifier</label>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input type="password" class="form-control" id="password" placeholder="Password">
+                        <label for="password" class="form-label">Password</label>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input type="text" class="form-control" id="display-name" placeholder="Display Name">
+                        <label for="display-name" class="form-label">Display Name</label>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input type="text" class="form-control" id="type" placeholder="Actor Type">
+                        <label for="type" class="form-label">Actor Type</label>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <textarea class="form-control" id="description" placeholder="Description" rows="3" style="height: 100px"></textarea>
+                        <label for="description" class="form-label">Description</label>
+                    </div>
+                    <div class="mb-3">
+                        <button class="btn btn-primary w-100" id="join-btn">Create A New Account</button>
+                    </div>
+                    <div class="mb-3">
+                        <a class="btn btn-outline-secondary w-100" href="/login">Login To An Existing Account</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% raw %}
+<script type="text/x-handlebars-template" id="nodes-template">
+    {{#each nodes}}
+        <option value="{{identifier}}">{{display_name}} - {{ identifier }}</option>
+    {{/each}}
+</script>
+{% endraw %}
+
+<script type="text/javascript" src="/static/jquery/jquery-3.7.1.min.js"></script>
+<script type="text/javascript" src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="/static/handlebars/handlebars.min-v4.7.8.js"></script>
+<script type="text/javascript" src="/static/select2/select2.full.min.js"></script>
+<script type="text/javascript" src="/static/js/app.js"></script>
+<script type="text/javascript">
+    const nodesTemplate = Handlebars.compile($("#nodes-template").html())
+
+    $(document).ready(function () {
+        listOpenNodes(function (data) {
+            $("#node-identifier").html(nodesTemplate({nodes: data}))
+        })
+
+        $("#join-btn").click(function (e) {
+            e.preventDefault()
+
+            let nodeIdentifier = $("#node-identifier").val().trim()
+            let identifier = $("#identifier").val().trim()
+            let displayName = $("#display-name").val().trim()
+            let type = $("#type").val().trim()
+            let password = $("#password").val().trim()
+            let description = $("#description").val().trim()
+
+            if (nodeIdentifier === "") {
+                displayError($("#message"), "Node is not selected")
+                return
+            }
+
+            if (identifier === "") {
+                displayError($("#message"), "Identifier is required")
+                return
+            }
+
+            if (password === "") {
+                displayError($("#message"), "Password is required")
+                return;
+            }
+
+            if (displayName === "") {
+                displayError($("#message"), "Display name is required")
+                return
+            }
+
+            if (type === "") {
+                displayError($("#message"), "Actor type is required")
+                return
+            }
+
+            signUp(nodeIdentifier, identifier, password, type, displayName, description, function (data) {
+                displaySuccess($("#message"), "Account created successfully, please <a href='/login'>log in</a> to continue")
+            }, function (data) {
+                displayError($("#message"), data.responseJSON.message)
+            })
+        })
+    })
+</script>
+</body>
+</html>

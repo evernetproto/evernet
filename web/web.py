@@ -50,3 +50,7 @@ class Web:
         @self.app.get("/admin/nodes/<node_identifier>/actors/<actor_identifier>")
         def page_admin_actor(node_identifier, actor_identifier):
             return render_template("admin-actor.html", node_identifier=node_identifier, identifier=actor_identifier, actor_identifier=actor_identifier)
+
+        @self.app.get("/join")
+        def sign_up():
+            return render_template("join.html")

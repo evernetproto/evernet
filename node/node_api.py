@@ -13,7 +13,7 @@ class NodeAPI:
 
         @self.app.get("/api/v1/nodes")
         def fetch_open_nodes():
-            return self.node_service.fetch_open(page(), size())
+            return self.node_service.fetch_open()
 
         @self.app.get("/api/v1/nodes/<identifier>")
         def get_node_details(identifier):

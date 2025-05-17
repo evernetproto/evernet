@@ -52,11 +52,11 @@ class NodeService:
 
         return result
 
-    def fetch_open(self, page: int = 0, size: int = 50) -> list[dict]:
+    def fetch_open(self) -> list[dict]:
         cursor = self.db.cursor()
         nodes = cursor.execute(
-            "SELECT identifier, display_name, description, open, signing_public_key, creator, created_at, updated_at FROM  nodes WHERE open = ? LIMIT ? OFFSET ?",
-            (True, size, page * size)
+            "SELECT identifier, display_name, description, open, signing_public_key, creator, created_at, updated_at FROM  nodes WHERE open = ?",
+            (True, )
         ).fetchall()
         cursor.close()
 
