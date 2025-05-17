@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+{% include 'admin-header.html' %}
+<body>
+{% include 'admin-navbar.html' %}
+<div class="container">
+    <div class="row" style="margin-top: 3rem;">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="row">
+                <div class="col-lg-9">
+                    <h2 id="display-name"></h2>
+                    <h4 id="identifier" class="text-secondary">{{ identifier }} <span class="badge bg-info" id="type"></span></h4>
+                </div>
+                <div class="col-lg-3">
+                    <button class="btn btn-primary float-end" data-bs-target="#update-actor-modal" data-bs-toggle="modal">Edit</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <hr>
+                    <blockquote class="blockquote" id="description"></blockquote>
+
+                    <h4 style="margin-top: 3rem;">Password Management</h4>
+                    <hr>
+                    <button class="btn btn-warning" data-bs-target="#reset-password-modal" data-bs-toggle="modal">Reset Password</button>
+
+                    <h4 style="margin-top: 3rem">Danger Zone</h4>
+                    <hr>
+                    <button class="btn btn-danger" data-bs-target="#delete-actor-modal" data-bs-toggle="modal">Delete Actor</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="update-actor-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Actor Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="update-actor-message"></div>
+                <form>
+                    <div class="mb-3 form-floating">
+                        <input type="text" class="form-control" id="update-display-name" placeholder="Display Name">
+                        <label for="update-display-name" class="form-label">Display Name</label>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <textarea class="form-control" rows="3" id="update-description" placeholder="Description"
+                                  style="height: 100px;"></textarea>
+                        <label for="update-description" class="form-label">Description</label>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input type="text" class="form-control" id="update-type" placeholder="Actor Type">
+                        <label for="update-type" class="form-label">Actor Type</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="update-actor-btn">Save Changes</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reset-password-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reset Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="reset-password-message"></div>
+                <p>Are you sure you want to reset password for actor {{identifier}}?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="reset-password-btn">Reset Password</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="delete-actor-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Actor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="delete-actor-message"></div>
+                <p>Are you sure you want to delete actor {{ identifier }}?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="delete-actor-btn">Delete</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'admin-footer.html' %}
+<script type="text/javascript">
+    const nodeIdentifier = "{{ node_identifier }}"
+    const identifier = "{{ identifier }}"
+
+    $(document).ready(function () {
+        getActor(nodeIdentifier, identifier, function (data) {
+            $("#display-name").html(data.display_name)
+            $("#type").html(data.type)
+            $("#description").html(data.description)
+            $("#update-display-name").val(data.display_name)
+            $("#update-type").val(data.type)
+            $("#update-description").val(data.description)
+        })
+
+        $("#update-actor-btn").click(function (e) {
+            e.preventDefault()
+
+            let displayName = $("#update-display-name").val().trim()
+            let description = $("#update-description").val().trim()
+            let type = $("#update-type").val().trim()
+
+            if (displayName === "") {
+                displayError($("#update-actor-message"), "Display name is required")
+                return
+            }
+
+            if (type === "") {
+                displayError($("#update-actor-message"), "Display name is required")
+                return
+            }
+
+            updateActor(nodeIdentifier, identifier, displayName, description, type, function (data) {
+                displaySuccess($("#update-actor-message"), "Changes saved successfully")
+                $("#display-name").html(displayName)
+                $("#type").html(type)
+                $("#description").html(description)
+            }, function (data) {
+                displayError($("#update-actor-message"), data.responseJSON.message)
+            })
+        })
+
+        $("#delete-actor-btn").click(function (e) {
+            e.preventDefault()
+            deleteActor(nodeIdentifier, identifier, function (data) {
+                window.location.href = "/admin/nodes/{{ node_identifier }}/actors"
+            }, function (data) {
+                displayError($("#delete-actor-message"), data.responseJSON.message)
+            })
+        })
+
+        $("#reset-password-btn").click(function (e) {
+            e.preventDefault()
+            resetActorPassword(nodeIdentifier, identifier, function (data) {
+                displaySuccess($("#reset-password-message"), `Password reset successfully, new password is <pre>${escapeHTML(data.password)}</pre>`)
+            }, function (data) {
+                displayError($("#reset-password-message"), data.responseJSON.message)
+            })
+        })
+    })
+</script>
+</body>
+</html>

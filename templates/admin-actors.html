@@ -84,7 +84,7 @@
             <td>{{display_name}}</td>
             <td><span class="badge bg-info">{{type}}</span></td>
             <td>
-                <a href="/admin/actors/{{identifier}}" class="btn btn-sm btn-secondary">Manage</a>
+                <a href="/admin/nodes/{{node_identifier}}/actors/{{identifier}}" class="btn btn-sm btn-secondary">Manage</a>
             </td>
         </tr>
     {{/each}}
@@ -142,6 +142,7 @@
                         identifier: identifier,
                         display_name: displayName,
                         type: type,
+                        node_identifier: nodeIdentifier
                     }]
                 }))
             }, function (data) {
