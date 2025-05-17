@@ -1,55 +1,8 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Node Administration {{ identifier }} - Evernet</title>
-    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/select2/select2.min.css">
-    <link rel="stylesheet" href="/static/css/app.css">
-    <script type="text/javascript">
-        if (!localStorage.getItem("adminToken")) {
-            window.location = "/admin"
-        }
-    </script>
-</head>
+{% include 'admin-header.html' %}
 <body>
-
-<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/">evernet</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-navbar"
-                aria-controls="main-navbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="main-navbar">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" href="/admin/home">Home
-                        <span class="visually-hidden">(current)</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/admins">Admins</a>
-                </li>
-            </ul>
-            <div class="d-flex justify-content-end">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                           aria-haspopup="true" aria-expanded="false">Settings</a>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item" href="/admin/account">Account</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="/logout">Logout</a>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</nav>
-
+{% include 'admin-navbar.html' %}
 <div class="container">
     <div class="row" style="margin-top: 3rem;">
         <div class="col-lg-6 offset-lg-3">
@@ -158,11 +111,7 @@
     </div>
 </div>
 
-<script type="text/javascript" src="/static/jquery/jquery-3.7.1.min.js"></script>
-<script type="text/javascript" src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script type="text/javascript" src="/static/handlebars/handlebars.min-v4.7.8.js"></script>
-<script type="text/javascript" src="/static/select2/select2.full.min.js"></script>
-<script type="text/javascript" src="/static/js/app.js"></script>
+{% include 'admin-footer.html' %}
 <script type="text/javascript">
     const identifier = "{{ identifier }}"
 
