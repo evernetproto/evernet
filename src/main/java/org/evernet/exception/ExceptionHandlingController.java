@@ -25,6 +25,7 @@ public class ExceptionHandlingController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        log.error("Argument not valid", e);
         return ErrorResponse.withMessage(e.getBindingResult().getAllErrors().getFirst().getDefaultMessage());
     }
 
@@ -32,6 +33,7 @@ public class ExceptionHandlingController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorResponse handleClientException(ClientException e) {
+        log.error("Client exception", e);
         return ErrorResponse.withMessage(e.getMessage());
     }
 
@@ -39,6 +41,7 @@ public class ExceptionHandlingController {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
     public ErrorResponse handleInvalidTokenException(InvalidTokenException e) {
+        log.error("Invalid token", e);
         return ErrorResponse.withMessage(e.getMessage());
     }
 
@@ -46,6 +49,7 @@ public class ExceptionHandlingController {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
     public ErrorResponse handleNotAllowedException(NotAllowedException e) {
+        log.error("Not allowed", e);
         return ErrorResponse.withMessage(e.getMessage());
     }
 
@@ -53,6 +57,7 @@ public class ExceptionHandlingController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public ErrorResponse handleNotFoundException(NotFoundException e) {
+        log.error("Not found", e);
         return ErrorResponse.withMessage(e.getMessage());
     }
 
@@ -60,6 +65,7 @@ public class ExceptionHandlingController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ErrorResponse handleServerException(ServerException e) {
+        log.error("Server error", e);
         return ErrorResponse.withMessage(e.getMessage());
     }
 
@@ -67,6 +73,7 @@ public class ExceptionHandlingController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public ErrorResponse handleNoResourceFoundException(NoResourceFoundException e) {
+        log.error("No resource found", e);
         return ErrorResponse.withMessage(e.getMessage());
     }
 
