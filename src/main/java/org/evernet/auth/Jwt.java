@@ -8,6 +8,7 @@ import org.evernet.service.ConfigService;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
 import java.util.Date;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ public class Jwt {
 
     private static final String TOKEN_TYPE_CLAIM = "type";
     private static final String TOKEN_TYPE_ADMIN = "ADMIN";
+    private static final String TOKEN_TYPE_ACTOR = "ACTOR";
 
     private final ConfigService configService;
 
@@ -46,6 +48,26 @@ public class Jwt {
                 .audience().add(vertexEndpoint)
                 .and()
                 .signWith(Keys.hmacShaKeyFor(configService.getJwtSigningKey().getBytes(StandardCharsets.UTF_8)))
+                .compact();
+    }
+
+    public String getActorToken(String actorIdentifier, String actorNodeIdentifier, String targetNodeAddress, PrivateKey privateKey) {
+        String vertexEndpoint = configService.getVertexEndpoint();
+
+        if (targetNodeAddress == null) {
+            targetNodeAddress = String.format("%s/%s", vertexEndpoint, actorNodeIdentifier);
+        }
+
+        return Jwts.builder().subject(actorIdentifier)
+                .issuedAt(new Date())
+                .id(UUID.randomUUID().toString())
+                .claim(TOKEN_TYPE_CLAIM, TOKEN_TYPE_ACTOR)
+                .issuer(String.format("%s/%s", vertexEndpoint, actorNodeIdentifier))
+                .audience().add(targetNodeAddress)
+                .and()
+                .header().keyId(String.format("%s/%s", vertexEndpoint, actorNodeIdentifier))
+                .and()
+                .signWith(privateKey)
                 .compact();
     }
 }

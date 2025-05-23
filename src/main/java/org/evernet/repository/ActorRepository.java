@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface ActorRepository extends JpaRepository<Actor, String> {
 
     boolean existsByIdentifierAndNodeIdentifier(String identifier, String nodeIdentifier);
+
+    Actor findByNodeIdentifierAndIdentifier(String nodeIdentifier, String identifier);
 }
