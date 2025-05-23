@@ -17,13 +17,19 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @JsonInclude(NON_NULL)
 public class AuthenticatedActor {
 
-    private String identifier;
+    private String actorIdentifier;
 
-    private String nodeIdentifier;
+    private String actorNodeIdentifier;
 
-    private String vertexEndpoint;
+    private String actorVertexEndpoint;
 
-    private String nodeAddress;
+    private String actorNodeAddress;
 
-    private String address;
+    private String actorAddress;
+
+    private String targetNodeIdentifier;
+
+    private String targetNodeAddress;
+
+    private String targetVertexEndpoint;
 }

@@ -1,15 +1,19 @@
 package org.evernet.auth;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.evernet.exception.InvalidTokenException;
+import org.evernet.exception.ServerException;
 import org.evernet.service.ConfigService;
+import org.evernet.service.NodeKeyService;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 
 @Component
@@ -21,6 +25,8 @@ public class Jwt {
     private static final String TOKEN_TYPE_ACTOR = "ACTOR";
 
     private final ConfigService configService;
+
+    private final NodeKeyService nodeKeyService;
 
     public AuthenticatedAdmin getAdmin(String token) {
         String vertexEndpoint = configService.getVertexEndpoint();
@@ -49,6 +55,63 @@ public class Jwt {
                 .and()
                 .signWith(Keys.hmacShaKeyFor(configService.getJwtSigningKey().getBytes(StandardCharsets.UTF_8)))
                 .compact();
+    }
+
+    public AuthenticatedActor getActor(String token) {
+        Jws<Claims> claims = Jwts.parser()
+                .keyLocator(header -> {
+                    String keyId = header.get("kid").toString();
+                    try {
+                        return nodeKeyService.getSigningPublicKey(keyId);
+                    } catch (GeneralSecurityException e) {
+                        throw new ServerException(e.getMessage());
+                    }
+                })
+                .require(TOKEN_TYPE_CLAIM, TOKEN_TYPE_ACTOR)
+                .build()
+                .parseSignedClaims(token);
+
+        Claims payload = claims.getPayload();
+        JwsHeader headers = claims.getHeader();
+
+        String issuer = payload.getIssuer();
+
+        String[] issuerComponents = issuer.split("/");
+        if (issuerComponents.length != 2) {
+            throw new InvalidTokenException();
+        }
+
+        if (!headers.getKeyId().equals(issuer)) {
+            throw new InvalidTokenException();
+        }
+
+        Set<String> audience = payload.getAudience();
+        if (audience.size() != 1) {
+            throw new InvalidTokenException();
+        }
+        String aud = audience.iterator().next();
+
+        String[] audienceComponents = aud.split("/");
+        if (audienceComponents.length != 2) {
+            throw new InvalidTokenException();
+        }
+
+        String vertexEndpoint = configService.getVertexEndpoint();
+        if (!vertexEndpoint.equals(audienceComponents[0])) {
+            throw new InvalidTokenException();
+        }
+
+        String subject = payload.getSubject();
+        return AuthenticatedActor.builder()
+                .actorIdentifier(subject)
+                .actorNodeIdentifier(issuerComponents[1])
+                .actorNodeAddress(issuer)
+                .actorAddress(String.format("%s/%s", issuer, subject))
+                .actorVertexEndpoint(issuerComponents[0])
+                .targetNodeAddress(aud)
+                .targetNodeIdentifier(audienceComponents[1])
+                .targetVertexEndpoint(audienceComponents[0])
+                .build();
     }
 
     public String getActorToken(String actorIdentifier, String actorNodeIdentifier, String targetNodeAddress, PrivateKey privateKey) {

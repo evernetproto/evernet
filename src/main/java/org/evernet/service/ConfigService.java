@@ -19,6 +19,7 @@ public class ConfigService {
     private static final String KEY_VERTEX_ENDPOINT = "VERTEX_ENDPOINT";
     private static final String KEY_VERTEX_DISPLAY_NAME = "VERTEX_DISPLAY_NAME";
     private static final String KEY_VERTEX_DESCRIPTION = "VERTEX_DESCRIPTION";
+    private static final String KEY_FEDERATION_PROTOCOL = "FEDERATION_PROTOCOL";
 
     @PostConstruct
     public void init() {
@@ -26,6 +27,14 @@ public class ConfigService {
             Config config = Config.builder()
                     .key(KEY_JWT_SIGNING_KEY)
                     .value(Random.generateRandomString(128))
+                    .build();
+            configRepository.save(config);
+        }
+
+        if (!configRepository.existsByKey(KEY_FEDERATION_PROTOCOL)) {
+            Config config = Config.builder()
+                    .key(KEY_FEDERATION_PROTOCOL)
+                    .value("http")
                     .build();
             configRepository.save(config);
         }
@@ -57,5 +66,9 @@ public class ConfigService {
 
     public String getVertexEndpoint() {
         return get(KEY_VERTEX_ENDPOINT, null).getValue();
+    }
+
+    public String getFederationProtocol() {
+        return get(KEY_FEDERATION_PROTOCOL, "http").getValue();
     }
 }
