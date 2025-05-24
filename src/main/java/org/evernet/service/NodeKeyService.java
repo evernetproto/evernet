@@ -1,7 +1,7 @@
 package org.evernet.service;
 
 import lombok.RequiredArgsConstructor;
-import org.evernet.exception.InvalidTokenException;
+import org.evernet.bean.NodeAddress;
 import org.evernet.util.Ed25519KeyHelper;
 import org.springframework.stereotype.Service;
 
@@ -18,20 +18,16 @@ public class NodeKeyService {
 
     private final ConfigService configService;
 
-    public PublicKey getSigningPublicKey(String nodeAddress) throws GeneralSecurityException {
-        String[] components = nodeAddress.split("/");
-
-        if (components.length != 2) {
-            throw new InvalidTokenException();
-        }
+    public PublicKey getSigningPublicKey(String nodeAddressString) throws GeneralSecurityException {
+        NodeAddress nodeAddress = NodeAddress.fromString(nodeAddressString);
 
         String currentVertexEndpoint = configService.getVertexEndpoint();
 
-        String signingPublicKeyString = null;
-        if (currentVertexEndpoint.equals(components[0])) {
-            signingPublicKeyString = nodeService.get(components[1]).getSigningPublicKey();
+        String signingPublicKeyString;
+        if (currentVertexEndpoint.equals(nodeAddress.getVertexEndpoint())) {
+            signingPublicKeyString = nodeService.get(nodeAddress.getNodeIdentifier()).getSigningPublicKey();
         } else {
-            signingPublicKeyString = remoteNodeService.getNode(components[1], components[0]).getSigningPublicKey();
+            signingPublicKeyString = remoteNodeService.getNode(nodeAddress.getNodeIdentifier(), nodeAddress.getVertexEndpoint()).getSigningPublicKey();
         }
 
         return Ed25519KeyHelper.stringToPublicKey(signingPublicKeyString);

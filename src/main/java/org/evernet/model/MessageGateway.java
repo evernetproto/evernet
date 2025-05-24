@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.Duration;
 import java.time.Instant;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
@@ -37,6 +38,8 @@ public class MessageGateway {
     private String displayName;
 
     private String description;
+
+    private Long messageExpirySeconds;
 
     @CreationTimestamp
     private Instant createdAt;

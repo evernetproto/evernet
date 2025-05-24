@@ -3,6 +3,8 @@ package org.evernet.auth;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.evernet.bean.ActorAddress;
+import org.evernet.bean.NodeAddress;
 import org.evernet.exception.InvalidTokenException;
 import org.evernet.exception.ServerException;
 import org.evernet.service.ConfigService;
@@ -75,11 +77,7 @@ public class Jwt {
         JwsHeader headers = claims.getHeader();
 
         String issuer = payload.getIssuer();
-
-        String[] issuerComponents = issuer.split("/");
-        if (issuerComponents.length != 2) {
-            throw new InvalidTokenException();
-        }
+        NodeAddress issuerNode = NodeAddress.fromString(issuer);
 
         if (!headers.getKeyId().equals(issuer)) {
             throw new InvalidTokenException();
@@ -89,28 +87,25 @@ public class Jwt {
         if (audience.size() != 1) {
             throw new InvalidTokenException();
         }
-        String aud = audience.iterator().next();
 
-        String[] audienceComponents = aud.split("/");
-        if (audienceComponents.length != 2) {
-            throw new InvalidTokenException();
-        }
+        String aud = audience.iterator().next();
+        NodeAddress audienceNode = NodeAddress.fromString(aud);
 
         String vertexEndpoint = configService.getVertexEndpoint();
-        if (!vertexEndpoint.equals(audienceComponents[0])) {
+        if (!vertexEndpoint.equals(audienceNode.getVertexEndpoint())) {
             throw new InvalidTokenException();
         }
 
         String subject = payload.getSubject();
         return AuthenticatedActor.builder()
                 .actorIdentifier(subject)
-                .actorNodeIdentifier(issuerComponents[1])
+                .actorNodeIdentifier(issuerNode.getNodeIdentifier())
                 .actorNodeAddress(issuer)
-                .actorAddress(String.format("%s/%s", issuer, subject))
-                .actorVertexEndpoint(issuerComponents[0])
+                .actorAddress(ActorAddress.builder().nodeAddress(issuerNode).actorIdentifier(subject).build().toString())
+                .actorVertexEndpoint(issuerNode.getVertexEndpoint())
                 .targetNodeAddress(aud)
-                .targetNodeIdentifier(audienceComponents[1])
-                .targetVertexEndpoint(audienceComponents[0])
+                .targetNodeIdentifier(audienceNode.getNodeIdentifier())
+                .targetVertexEndpoint(audienceNode.getVertexEndpoint())
                 .build();
     }
 
@@ -118,17 +113,19 @@ public class Jwt {
         String vertexEndpoint = configService.getVertexEndpoint();
 
         if (targetNodeAddress == null) {
-            targetNodeAddress = String.format("%s/%s", vertexEndpoint, actorNodeIdentifier);
+            targetNodeAddress = NodeAddress.builder().vertexEndpoint(vertexEndpoint).nodeIdentifier(actorNodeIdentifier).toString();
         }
+
+        NodeAddress actorNodeAddress = NodeAddress.builder().vertexEndpoint(vertexEndpoint).nodeIdentifier(actorNodeIdentifier).build();
 
         return Jwts.builder().subject(actorIdentifier)
                 .issuedAt(new Date())
                 .id(UUID.randomUUID().toString())
                 .claim(TOKEN_TYPE_CLAIM, TOKEN_TYPE_ACTOR)
-                .issuer(String.format("%s/%s", vertexEndpoint, actorNodeIdentifier))
+                .issuer(actorNodeAddress.toString())
                 .audience().add(targetNodeAddress)
                 .and()
-                .header().keyId(String.format("%s/%s", vertexEndpoint, actorNodeIdentifier))
+                .header().keyId(actorNodeAddress.toString())
                 .and()
                 .signWith(privateKey)
                 .compact();

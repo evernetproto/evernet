@@ -29,6 +29,7 @@ public class MessageGatewayService {
                 .identifier(request.getIdentifier())
                 .displayName(request.getDisplayName())
                 .description(request.getDescription())
+                .messageExpirySeconds(request.getMessageExpirySeconds())
                 .actorAddress(actorAddress)
                 .build();
 
@@ -54,6 +55,10 @@ public class MessageGatewayService {
 
         if (StringUtils.hasText(request.getDisplayName())) {
             messageGateway.setDisplayName(request.getDisplayName());
+        }
+
+        if (request.getMessageExpirySeconds() != null) {
+            messageGateway.setMessageExpirySeconds(request.getMessageExpirySeconds());
         }
 
         messageGateway.setDescription(request.getDescription());

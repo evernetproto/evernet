@@ -2,12 +2,15 @@ package org.evernet.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -17,16 +20,14 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(NON_NULL)
-public class MessageGatewayCreationRequest {
+public class SendMessageRequest {
 
-    @NotBlank(message = "Identifier is required")
-    private String identifier;
+    @NotEmpty(message = "Recipient message gateway address list cannot be empty")
+    private Set<String> recipientMessageGatewayAddresses;
 
-    @NotBlank(message = "Display name is required")
-    private String displayName;
+    @Valid
+    @NotNull(message = "Message is required")
+    private MessageContentRequest message;
 
-    private String description;
-
-    @NotNull(message = "Message expiry is required")
-    private Long messageExpirySeconds;
+    private Long sendAfterSeconds;
 }
