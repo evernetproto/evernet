@@ -36,6 +36,7 @@ public class ActorController extends AuthenticatedActorController {
 
     @DeleteMapping("/actors/current")
     public Actor delete() {
+        checkLocal();
         return actorService.delete(getActorIdentifier(), getActorNodeIdentifier());
     }
 }
