@@ -114,7 +114,7 @@ public class Jwt {
         String vertexEndpoint = configService.getVertexEndpoint();
 
         if (targetNodeAddress == null) {
-            targetNodeAddress = NodeAddress.builder().vertexEndpoint(vertexEndpoint).nodeIdentifier(actorNodeIdentifier).toString();
+            targetNodeAddress = NodeAddress.builder().vertexEndpoint(vertexEndpoint).nodeIdentifier(actorNodeIdentifier).build().toString();
         }
 
         NodeAddress actorNodeAddress = NodeAddress.builder().vertexEndpoint(vertexEndpoint).nodeIdentifier(actorNodeIdentifier).build();

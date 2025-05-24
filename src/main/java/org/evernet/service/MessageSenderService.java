@@ -2,6 +2,7 @@ package org.evernet.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.evernet.auth.Jwt;
 import org.evernet.bean.MessageGatewayAddress;
 import org.evernet.bean.NodeAddress;
 import org.evernet.enums.MessageStatus;
@@ -39,6 +40,8 @@ public class MessageSenderService {
     private final NodeService nodeService;
 
     private final RemoteNodeService remoteNodeService;
+
+    private final Jwt jwt;
 
     public SendMessageResponse queue(String messageGatewayIdentifier, SendMessageRequest request, String nodeIdentifier, String actorAddress) {
         MessageGateway messageGateway = messageGatewayService.get(messageGatewayIdentifier, nodeIdentifier, actorAddress);
@@ -174,7 +177,8 @@ public class MessageSenderService {
         NodeAddress senderNodeAddress = NodeAddress.builder().vertexEndpoint(senderVertexEndpoint).nodeIdentifier(senderNodeIdentifier).build();
 
         try {
-            return remoteNodeService.sendMessages(messages, recipientNodeAddress, senderNodeAddress, Ed25519KeyHelper.stringToPrivateKey(senderNode.getSigningPrivateKey())).getMessageStatus();
+            String token = jwt.getNodeToken(senderNodeIdentifier, senderVertexEndpoint, recipientNodeAddress.toString(), Ed25519KeyHelper.stringToPrivateKey(senderNode.getSigningPrivateKey()));
+            return remoteNodeService.sendMessages(messages, recipientNodeAddress, senderNodeAddress, token).getMessageStatus();
         } catch (Exception e) {
             log.error("Error while sending messages to remote node {} on vertex {}",recipientNodeIdentifier, recipientVertexEndpoint, e);
             return messages.stream().collect(Collectors.toMap(Message::getId, _ -> MessageStatus.SOFT_FAILED, (_, b) -> b));
