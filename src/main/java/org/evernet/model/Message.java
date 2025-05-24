@@ -63,7 +63,7 @@ public class Message {
 
     private Instant queuedAt;
 
-    private Instant sentAt;
+    private Instant sendAttemptedAt;
 
     @CreationTimestamp
     private Instant createdAt;

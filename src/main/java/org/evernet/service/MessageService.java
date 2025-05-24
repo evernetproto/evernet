@@ -44,4 +44,9 @@ public class MessageService {
             return messages;
         }
     }
+
+    @Transactional
+    public void updateSendStatus(String messageId, MessageStatus status) {
+        messageRepository.updateSendStatus(messageId, status, Instant.now());
+    }
 }

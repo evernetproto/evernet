@@ -20,6 +20,7 @@ dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.49.1.0'
     implementation 'org.hibernate.orm:hibernate-community-dialects:7.0.0.Final'
     implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.2'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0'
     implementation 'org.mindrot:jbcrypt:0.4'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'

@@ -14,4 +14,6 @@ public interface MessageGatewayRepository extends JpaRepository<MessageGateway, 
     List<MessageGateway> findByNodeIdentifierAndActorAddress(String nodeIdentifier, String actorAddress, Pageable pageable);
 
     MessageGateway findByIdentifierAndNodeIdentifierAndActorAddress(String identifier, String nodeIdentifier, String actorAddress);
+
+    MessageGateway findByIdentifierAndNodeIdentifier(String identifier, String nodeIdentifier);
 }

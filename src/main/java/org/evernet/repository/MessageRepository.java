@@ -20,4 +20,8 @@ public interface MessageRepository extends JpaRepository<Message, String> {
     @Modifying
     @Query("UPDATE Message m SET m.status = 'QUEUED', m.queuedAt = :now WHERE m.id IN :ids AND m.status = 'SCHEDULED'")
     int lockAndMarkAsQueued(@Param("ids") List<String> ids, @Param("now") Instant now);
+
+    @Modifying
+    @Query("UPDATE Message m SET m.status = :status, m.sendAttemptedAt = :now WHERE m.id = :id")
+    void updateSendStatus(@Param("id") String id, @Param("status") MessageStatus status, @Param("now") Instant now);
 }

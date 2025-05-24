@@ -50,6 +50,16 @@ public class MessageGatewayService {
         return messageGateway;
     }
 
+    public MessageGateway get(String messageGatewayIdentifier, String nodeIdentifier) {
+        MessageGateway messageGateway = messageGatewayRepository.findByIdentifierAndNodeIdentifier(messageGatewayIdentifier, nodeIdentifier);
+
+        if (messageGateway == null) {
+            throw new NotFoundException(String.format("Message gateway %s not found on node %s", messageGatewayIdentifier, nodeIdentifier));
+        }
+
+        return messageGateway;
+    }
+
     public MessageGateway update(String messageGatewayIdentifier, MessageGatewayUpdateRequest request, String nodeIdentifier, String actorAddress) {
         MessageGateway messageGateway = get(messageGatewayIdentifier, nodeIdentifier, actorAddress);
 

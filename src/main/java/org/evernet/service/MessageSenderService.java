@@ -107,11 +107,9 @@ public class MessageSenderService {
             MessageStatus newMessageStatus = messageStatusMap.get(message.getId());
 
             if (newMessageStatus != null) {
-                message.setStatus(newMessageStatus);
+                messageService.updateSendStatus(message.getId(), newMessageStatus);
             }
         }
-
-        messageService.save(messages);
     }
 
     private Map<String, MessageStatus> deliverRemoteMessages(List<Message> messages, String senderVertexEndpoint) {
