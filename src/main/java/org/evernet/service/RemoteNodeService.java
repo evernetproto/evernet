@@ -6,6 +6,7 @@ import org.evernet.bean.NodeAddress;
 import org.evernet.model.Message;
 import org.evernet.model.Node;
 import org.evernet.request.MessageReceiverRequest;
+import org.evernet.response.MessageReceiverResponse;
 import org.evernet.response.SuccessResponse;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -33,7 +34,7 @@ public class RemoteNodeService {
         ), Node.class);
     }
 
-    public void sendMessages(List<Message> messages, NodeAddress recipientNode, NodeAddress senderNode, PrivateKey senderPrivateKey) {
+    public MessageReceiverResponse sendMessages(List<Message> messages, NodeAddress recipientNode, NodeAddress senderNode, PrivateKey senderPrivateKey) {
         String token = jwt.getNodeToken(senderNode.getNodeIdentifier(), senderNode.getVertexEndpoint(), recipientNode.toString(), senderPrivateKey);
 
         HttpHeaders headers = new HttpHeaders();
@@ -45,14 +46,14 @@ public class RemoteNodeService {
 
         HttpEntity<MessageReceiverRequest> requestEntity = new HttpEntity<>(requestPayload, headers);
 
-        restTemplate.postForObject(
+        return restTemplate.postForObject(
                 String.format(
                         "%s://%s/api/v1/messaging/receive",
                         configService.getFederationProtocol(),
                         recipientNode.getVertexEndpoint()
                 ),
                 requestEntity,
-                SuccessResponse.class
+                MessageReceiverResponse.class
         );
     }
 }

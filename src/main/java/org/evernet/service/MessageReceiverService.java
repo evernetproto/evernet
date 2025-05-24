@@ -3,6 +3,7 @@ package org.evernet.service;
 import lombok.RequiredArgsConstructor;
 import org.evernet.auth.AuthenticatedNode;
 import org.evernet.model.Message;
+import org.evernet.response.MessageReceiverResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,11 +13,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MessageReceiverService {
 
-    public void receive(List<Message> messages) {
+    public MessageReceiverResponse receive(List<Message> messages) {
         // TODO
+        return MessageReceiverResponse.builder().build();
     }
 
-    public void receive(List<Message> messages, AuthenticatedNode authenticatedNode) {
+    public MessageReceiverResponse receive(List<Message> messages, AuthenticatedNode authenticatedNode) {
         List<Message> validMessages = new ArrayList<>();
 
         for (Message message : messages) {
@@ -25,6 +27,6 @@ public class MessageReceiverService {
             }
         }
 
-        receive(validMessages);
+        return receive(validMessages);
     }
 }
