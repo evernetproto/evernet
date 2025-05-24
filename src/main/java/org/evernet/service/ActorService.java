@@ -9,17 +9,18 @@ import org.evernet.exception.NotFoundException;
 import org.evernet.model.Actor;
 import org.evernet.model.Node;
 import org.evernet.repository.ActorRepository;
-import org.evernet.request.ActorPasswordChangeRequest;
-import org.evernet.request.ActorSignUpRequest;
-import org.evernet.request.ActorTokenRequest;
-import org.evernet.request.ActorUpdateRequest;
+import org.evernet.request.*;
+import org.evernet.response.ActorPasswordResponse;
 import org.evernet.response.ActorTokenResponse;
 import org.evernet.util.Ed25519KeyHelper;
 import org.evernet.util.Password;
+import org.evernet.util.Random;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.security.GeneralSecurityException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -105,5 +106,39 @@ public class ActorService {
         Actor actor = get(identifier, nodeIdentifier);
         actorRepository.delete(actor);
         return actor;
+    }
+
+    public ActorPasswordResponse add(String nodeIdentifier, ActorAdditionRequest request, String creator) {
+        Node node = nodeService.get(nodeIdentifier);
+
+        if (actorRepository.existsByIdentifierAndNodeIdentifier(request.getIdentifier(), node.getIdentifier())) {
+            throw new ClientException(String.format("Actor %s already exists on node %s", request.getIdentifier(), node.getIdentifier()));
+        }
+
+        String password = Random.generateRandomString(16);
+        Actor actor = Actor.builder()
+                .nodeIdentifier(node.getIdentifier())
+                .identifier(request.getIdentifier())
+                .displayName(request.getDisplayName())
+                .description(request.getDescription())
+                .type(request.getType())
+                .password(Password.hash(password))
+                .creator(creator)
+                .build();
+
+        actor = actorRepository.save(actor);
+        return ActorPasswordResponse.builder().actor(actor).password(password).build();
+    }
+
+    public List<Actor> list(String nodeIdentifier, Pageable pageable) {
+        return actorRepository.findByNodeIdentifier(nodeIdentifier, pageable);
+    }
+
+    public ActorPasswordResponse resetPassword(String identifier, String nodeIdentifier) {
+        Actor actor = get(identifier, nodeIdentifier);
+        String password = Random.generateRandomString(16);
+        actor.setPassword(Password.hash(password));
+        actor = actorRepository.save(actor);
+        return ActorPasswordResponse.builder().actor(actor).password(password).build();
     }
 }
