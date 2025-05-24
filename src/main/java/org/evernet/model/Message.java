@@ -37,6 +37,8 @@ public class Message {
 
     private String senderNodeIdentifier;
 
+    private String senderVertexEndpoint;
+
     @Convert(converter = MapToJsonConverter.class)
     private Map<String, Object> topic;
 

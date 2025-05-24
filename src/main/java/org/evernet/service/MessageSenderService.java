@@ -24,6 +24,12 @@ public class MessageSenderService {
 
     private final MessageService messageService;
 
+    private final ConfigService configService;
+
+    private final MessageReceiverService messageReceiverService;
+
+    private final RemoteNodeService remoteNodeService;
+
     public SendMessageResponse queue(String messageGatewayIdentifier, SendMessageRequest request, String nodeIdentifier, String actorAddress) {
         MessageGateway messageGateway = messageGatewayService.get(messageGatewayIdentifier, nodeIdentifier, actorAddress);
         MessageContentRequest requestMessage = request.getMessage();
@@ -37,6 +43,7 @@ public class MessageSenderService {
             Message message = Message.builder()
                     .senderMessageGatewayIdentifier(messageGateway.getIdentifier())
                     .senderNodeIdentifier(nodeIdentifier)
+                    .senderVertexEndpoint(configService.getVertexEndpoint())
                     .senderActorAddress(actorAddress)
                     .topic(requestMessage.getTopic())
                     .headers(requestMessage.getHeaders())
@@ -58,6 +65,29 @@ public class MessageSenderService {
 
     public void sendUnsent() {
         List<Message> messages = messageService.peekUnsent(Pageable.ofSize(100));
-        System.out.println(messages);
+        String vertexEndpoint = configService.getVertexEndpoint();
+
+        List<Message> localMessages = new ArrayList<>();
+        List<Message> remoteMessages = new ArrayList<>();
+
+        for (Message message : messages) {
+            if (vertexEndpoint.equals(message.getRecipientVertexEndpoint())) {
+                localMessages.add(message);
+            } else {
+                remoteMessages.add(message);
+            }
+        }
+
+        if (!localMessages.isEmpty()) {
+            messageReceiverService.receive(localMessages);
+        }
+
+        if (!remoteMessages.isEmpty()) {
+            deliverRemoteMessages(messages);
+        }
+    }
+
+    private void deliverRemoteMessages(List<Message> messages) {
+        // TODO
     }
 }

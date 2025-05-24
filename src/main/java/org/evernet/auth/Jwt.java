@@ -25,6 +25,7 @@ public class Jwt {
     private static final String TOKEN_TYPE_CLAIM = "type";
     private static final String TOKEN_TYPE_ADMIN = "ADMIN";
     private static final String TOKEN_TYPE_ACTOR = "ACTOR";
+    private static final String TOKEN_TYPE_NODE = "NODE";
 
     private final ConfigService configService;
 
@@ -129,5 +130,74 @@ public class Jwt {
                 .and()
                 .signWith(privateKey)
                 .compact();
+    }
+
+    public String getNodeToken(String nodeIdentifier, String vertexEndpoint, String targetNodeAddress, PrivateKey privateKey) {
+        NodeAddress nodeAddress = NodeAddress.builder().vertexEndpoint(vertexEndpoint).nodeIdentifier(nodeIdentifier).build();
+
+        return Jwts.builder().subject(nodeIdentifier)
+                .claim(TOKEN_TYPE_CLAIM, TOKEN_TYPE_NODE)
+                .issuedAt(new Date())
+                .id(UUID.randomUUID().toString())
+                .issuer(nodeAddress.toString())
+                .audience().add(targetNodeAddress)
+                .and()
+                .header().keyId(nodeAddress.toString())
+                .and()
+                .signWith(privateKey)
+                .compact();
+    }
+
+    public AuthenticatedNode getNode(String token) {
+        Jws<Claims> claims = Jwts.parser()
+                .require(TOKEN_TYPE_CLAIM, TOKEN_TYPE_NODE)
+                .keyLocator(header -> {
+                    String keyId = header.get("kid").toString();
+                    try {
+                        return nodeKeyService.getSigningPublicKey(keyId);
+                    } catch (GeneralSecurityException e) {
+                        throw new ServerException(e.getMessage());
+                    }
+                })
+                .build()
+                .parseSignedClaims(token);
+
+        JwsHeader headers = claims.getHeader();
+        Claims payload = claims.getPayload();
+
+        String issuer = payload.getIssuer();
+        NodeAddress issuerNode = NodeAddress.fromString(issuer);
+
+        if (!headers.getKeyId().equals(issuer)) {
+            throw new InvalidTokenException();
+        }
+
+        String subject = payload.getSubject();
+
+        if (!issuerNode.getNodeIdentifier().equals(subject)) {
+            throw new InvalidTokenException();
+        }
+
+        Set<String> audience = payload.getAudience();
+        if (audience.size() != 1) {
+            throw new InvalidTokenException();
+        }
+
+        String aud = audience.iterator().next();
+        NodeAddress audienceNode = NodeAddress.fromString(aud);
+
+        String vertexEndpoint = configService.getVertexEndpoint();
+        if (!vertexEndpoint.equals(audienceNode.getVertexEndpoint())) {
+            throw new InvalidTokenException();
+        }
+
+        return AuthenticatedNode.builder()
+                .nodeIdentifier(subject)
+                .nodeVertexEndpoint(issuerNode.getVertexEndpoint())
+                .nodeAddress(issuerNode.toString())
+                .targetNodeAddress(aud)
+                .targetNodeIdentifier(audienceNode.getNodeIdentifier())
+                .targetVertexEndpoint(audienceNode.getVertexEndpoint())
+                .build();
     }
 }
