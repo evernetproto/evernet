@@ -6,6 +6,8 @@ public enum MessageStatus {
 
     QUEUED,
 
+    SCHEDULED,
+
     SOFT_FAILED,
 
     HARD_FAILED

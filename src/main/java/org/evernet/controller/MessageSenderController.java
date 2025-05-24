@@ -17,6 +17,6 @@ public class MessageSenderController extends AuthenticatedActorController {
 
     @PostMapping("/messaging/gateways/{messageGatewayIdentifier}/send")
     public SendMessageResponse send(@Valid @RequestBody SendMessageRequest request, @PathVariable String messageGatewayIdentifier) {
-        return messageSenderService.send(messageGatewayIdentifier, request, getTargetNodeIdentifier(), getActorAddress());
+        return messageSenderService.queue(messageGatewayIdentifier, request, getTargetNodeIdentifier(), getActorAddress());
     }
 }

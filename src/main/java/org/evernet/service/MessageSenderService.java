@@ -8,6 +8,7 @@ import org.evernet.model.MessageGateway;
 import org.evernet.request.MessageContentRequest;
 import org.evernet.request.SendMessageRequest;
 import org.evernet.response.SendMessageResponse;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -23,17 +24,14 @@ public class MessageSenderService {
 
     private final MessageService messageService;
 
-    public SendMessageResponse send(String messageGatewayIdentifier, SendMessageRequest request, String nodeIdentifier, String actorAddress) {
+    public SendMessageResponse queue(String messageGatewayIdentifier, SendMessageRequest request, String nodeIdentifier, String actorAddress) {
         MessageGateway messageGateway = messageGatewayService.get(messageGatewayIdentifier, nodeIdentifier, actorAddress);
-
         MessageContentRequest requestMessage = request.getMessage();
-
         Instant sendAt = request.getSendAfterSeconds() == null ? Instant.now() : Instant.now().plus(request.getSendAfterSeconds(), ChronoUnit.SECONDS);
 
         List<Message> messages = new ArrayList<>();
 
         for (String recipientMessageGatewayAddress : request.getRecipientMessageGatewayAddresses()) {
-
             MessageGatewayAddress recipientMessageGateway = MessageGatewayAddress.fromString(recipientMessageGatewayAddress);
 
             Message message = Message.builder()
@@ -48,7 +46,7 @@ public class MessageSenderService {
                     .recipientMessageGatewayIdentifier(recipientMessageGateway.getMessageGatewayIdentifier())
                     .sendAt(sendAt)
                     .expiresAt(Instant.now().plus(messageGateway.getMessageExpirySeconds(), ChronoUnit.SECONDS))
-                    .status(MessageStatus.QUEUED)
+                    .status(MessageStatus.SCHEDULED)
                     .build();
 
             messages.add(message);
@@ -56,5 +54,10 @@ public class MessageSenderService {
 
         messages = messageService.save(messages);
         return SendMessageResponse.builder().messages(messages).build();
+    }
+
+    public void sendUnsent() {
+        List<Message> messages = messageService.peekUnsent(Pageable.ofSize(100));
+        System.out.println(messages);
     }
 }

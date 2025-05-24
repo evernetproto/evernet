@@ -59,6 +59,10 @@ public class Message {
     @Enumerated(EnumType.STRING)
     private MessageStatus status;
 
+    private Instant queuedAt;
+
+    private Instant sentAt;
+
     @CreationTimestamp
     private Instant createdAt;
 }
