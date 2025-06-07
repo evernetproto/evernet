@@ -7,6 +7,7 @@ import (
 	"github.com/dgraph-io/badger/v4"
 	"github.com/evernetproto/evernet/internal/app/evernet/vertex"
 	"github.com/evernetproto/evernet/internal/pkg/auth"
+	"github.com/evernetproto/evernet/internal/pkg/secret"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -233,6 +234,54 @@ func (s *Service) ChangePassword(identifier string, request *PasswordChangeReque
 		}
 
 		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return admin, nil
+}
+
+func (s *Service) Add(request *AdditionRequest, creator string) (*Admin, error) {
+	newPassword, err := secret.GenerateSecret(16)
+
+	if err != nil {
+		return nil, err
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+
+	if err != nil {
+		return nil, err
+	}
+
+	admin := &Admin{
+		Identifier: request.Identifier,
+		Password:   string(hashedPassword),
+		Creator:    creator,
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
+	}
+
+	err = s.db.Update(func(txn *badger.Txn) error {
+		_, err := txn.Get([]byte(fmt.Sprintf("%s%s", KeyPrefix, request.Identifier)))
+
+		if err == nil {
+			return fmt.Errorf("admin %s already exists", request.Identifier)
+		}
+
+		if !errors.Is(err, badger.ErrKeyNotFound) {
+			return err
+		}
+
+		adminString, err := json.Marshal(admin)
+
+		if err != nil {
+			return err
+		}
+
+		return txn.Set([]byte(fmt.Sprintf("%s%s", KeyPrefix, request.Identifier)), adminString)
 	})
 
 	if err != nil {

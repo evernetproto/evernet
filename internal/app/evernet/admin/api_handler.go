@@ -96,4 +96,30 @@ func (a *ApiHandler) Register() {
 
 		c.JSON(http.StatusOK, admin)
 	})
+
+	a.router.POST("/api/v1/admins", func(c *gin.Context) {
+		var req AdditionRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			api.Error(c, http.StatusBadRequest, err)
+			return
+		}
+
+		ad, err := a.authenticator.ValidateAdminContext(c)
+
+		if err != nil {
+			api.Error(c, http.StatusUnauthorized, err)
+			return
+		}
+
+		admin, err := a.service.Add(&req, ad.Identifier)
+
+		if err != nil {
+			api.Error(c, http.StatusInternalServerError, err)
+			return
+		}
+
+		admin.Password = ""
+
+		c.JSON(http.StatusCreated, admin)
+	})
 }
