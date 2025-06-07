@@ -109,3 +109,39 @@ func (s *Service) List() ([]*Node, error) {
 
 	return nodes, nil
 }
+
+func (s *Service) Get(identifier string) (*Node, error) {
+	var node Node
+
+	err := s.db.View(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte(fmt.Sprintf("%s%s", KeyPrefix, identifier)))
+
+		if errors.Is(err, badger.ErrKeyNotFound) {
+			return fmt.Errorf("node %s not found", identifier)
+		}
+
+		if err != nil {
+			return err
+		}
+
+		nodeString, err := item.ValueCopy(nil)
+
+		if err != nil {
+			return err
+		}
+
+		err = json.Unmarshal(nodeString, &node)
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &node, nil
+}
