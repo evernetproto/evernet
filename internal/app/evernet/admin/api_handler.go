@@ -71,4 +71,29 @@ func (a *ApiHandler) Register() {
 		admin.Password = ""
 		c.JSON(http.StatusOK, admin)
 	})
+
+	a.router.PUT("/api/v1/admins/current/password", func(c *gin.Context) {
+		var req PasswordChangeRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			api.Error(c, http.StatusBadRequest, err)
+			return
+		}
+
+		ad, err := a.authenticator.ValidateAdminContext(c)
+		if err != nil {
+			api.Error(c, http.StatusUnauthorized, err)
+			return
+		}
+
+		admin, err := a.service.ChangePassword(ad.Identifier, &req)
+
+		if err != nil {
+			api.Error(c, http.StatusInternalServerError, err)
+			return
+		}
+
+		admin.Password = ""
+
+		c.JSON(http.StatusOK, admin)
+	})
 }

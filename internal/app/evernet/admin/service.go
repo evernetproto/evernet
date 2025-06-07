@@ -185,3 +185,59 @@ func (s *Service) Get(identifier string) (*Admin, error) {
 
 	return admin, nil
 }
+
+func (s *Service) ChangePassword(identifier string, request *PasswordChangeRequest) (*Admin, error) {
+	var admin *Admin
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.db.Update(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte(fmt.Sprintf("%s%s", KeyPrefix, identifier)))
+
+		if errors.Is(err, badger.ErrKeyNotFound) {
+			return fmt.Errorf("admin %s not found", identifier)
+		}
+
+		if err != nil {
+			return err
+		}
+
+		val, err := item.ValueCopy(nil)
+		if err != nil {
+			return err
+		}
+
+		err = json.Unmarshal(val, &admin)
+
+		if err != nil {
+			return err
+		}
+
+		admin.Password = string(hashedPassword)
+		admin.UpdatedAt = time.Now()
+
+		adminString, err := json.Marshal(admin)
+
+		if err != nil {
+			return err
+		}
+
+		err = txn.Set([]byte(fmt.Sprintf("%s%s", KeyPrefix, identifier)), adminString)
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return admin, nil
+}
