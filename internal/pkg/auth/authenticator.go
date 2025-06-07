@@ -30,7 +30,7 @@ func (a *Authenticator) GenerateAdminToken(identifier string, vertexEndpoint str
 		"exp":  int(time.Now().Add(time.Hour * 24).Unix()),
 	})
 
-	tokenString, err := token.SignedString(jwtSigningKey)
+	tokenString, err := token.SignedString([]byte(jwtSigningKey))
 
 	if err != nil {
 		return "", err
@@ -56,7 +56,7 @@ func (a *Authenticator) ValidateAdminContext(c *gin.Context, jwtSigningKey strin
 
 func (a *Authenticator) validateAdminToken(tokenString string, jwtSigningKey string, vertexEndpoint string) (*AuthenticatedAdmin, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return jwtSigningKey, nil
+		return []byte(jwtSigningKey), nil
 	})
 
 	if err != nil {

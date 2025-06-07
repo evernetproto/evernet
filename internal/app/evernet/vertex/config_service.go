@@ -99,3 +99,15 @@ func (s *ConfigService) Get(key string) (string, error) {
 func (s *ConfigService) GetJwtSigningKey() (string, error) {
 	return s.Get(JwtSigningKey)
 }
+
+func (s *ConfigService) GetVertexEndpoint() (string, error) {
+	return s.Get(EndpointKey)
+}
+
+func (s *ConfigService) GetVertexName() (string, error) {
+	return s.Get(NameKey)
+}
+
+func (s *ConfigService) GetVertexDescription() (string, error) {
+	return s.Get(DescriptionKey)
+}

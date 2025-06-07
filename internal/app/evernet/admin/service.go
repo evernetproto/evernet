@@ -2,9 +2,11 @@ package admin
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/dgraph-io/badger/v4"
 	"github.com/evernetproto/evernet/internal/app/evernet/vertex"
+	"github.com/evernetproto/evernet/internal/pkg/auth"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -12,6 +14,7 @@ import (
 type Service struct {
 	db                  *badger.DB
 	vertexConfigService *vertex.ConfigService
+	authenticator       *auth.Authenticator
 }
 
 const (
@@ -89,4 +92,61 @@ func (s *Service) Init(request *InitRequest) (*Admin, error) {
 	}
 
 	return admin, nil
+}
+
+func (s *Service) GetToken(request *TokenRequest) (*TokenResponse, error) {
+	var admin *Admin
+
+	err := s.db.View(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte(KeyPrefix + request.Identifier))
+
+		if errors.Is(err, badger.ErrKeyNotFound) {
+			return fmt.Errorf("invalid identifier and password combination")
+		}
+
+		if err != nil {
+			return err
+		}
+
+		val, err := item.ValueCopy(nil)
+
+		if err != nil {
+			return err
+		}
+
+		err = json.Unmarshal(val, &admin)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(request.Password))
+
+	if err != nil {
+		return nil, fmt.Errorf("invalid identifier and password combination")
+	}
+
+	jwtSigningKey, err := s.vertexConfigService.GetJwtSigningKey()
+	if err != nil {
+		return nil, err
+	}
+
+	vertexEndpoint, err := s.vertexConfigService.GetVertexEndpoint()
+	if err != nil {
+		return nil, err
+	}
+
+	token, err := s.authenticator.GenerateAdminToken(admin.Identifier, vertexEndpoint, jwtSigningKey)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &TokenResponse{Token: token}, nil
 }
