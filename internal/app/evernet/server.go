@@ -45,6 +45,7 @@ func (s *Server) Start() {
 
 	vertex.NewHealthCheckApiHandler(router).Register()
 	admin.NewApiHandler(router, adminService, adminAuthenticator).Register()
+	vertex.NewApiHandler(router, configService).Register()
 
 	err = router.Run(fmt.Sprintf("%s:%s", s.config.Host, s.config.Port))
 
