@@ -290,3 +290,42 @@ func (s *Service) Add(request *AdditionRequest, creator string) (*Admin, error) 
 
 	return admin, nil
 }
+
+func (s *Service) List() ([]*Admin, error) {
+	prefix := []byte(KeyPrefix)
+	admins := make([]*Admin, 0)
+
+	err := s.db.View(func(txn *badger.Txn) error {
+		it := txn.NewIterator(badger.DefaultIteratorOptions)
+		defer it.Close()
+
+		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
+			item := it.Item()
+
+			adminString, err := item.ValueCopy(nil)
+
+			if err != nil {
+				return err
+			}
+
+			var admin Admin
+
+			err = json.Unmarshal(adminString, &admin)
+
+			if err != nil {
+				return err
+			}
+
+			admin.Password = ""
+			admins = append(admins, &admin)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return admins, nil
+}

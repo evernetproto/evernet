@@ -122,4 +122,39 @@ func (a *ApiHandler) Register() {
 
 		c.JSON(http.StatusCreated, admin)
 	})
+
+	a.router.GET("/api/v1/admins", func(c *gin.Context) {
+		_, err := a.authenticator.ValidateAdminContext(c)
+
+		if err != nil {
+			api.Error(c, http.StatusUnauthorized, err)
+			return
+		}
+
+		admins, err := a.service.List()
+
+		if err != nil {
+			api.Error(c, http.StatusInternalServerError, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, admins)
+	})
+
+	a.router.GET("/api/v1/admins/:identifier", func(c *gin.Context) {
+		_, err := a.authenticator.ValidateAdminContext(c)
+		if err != nil {
+			api.Error(c, http.StatusUnauthorized, err)
+			return
+		}
+
+		admin, err := a.service.Get(c.Param("identifier"))
+
+		if err != nil {
+			api.Error(c, http.StatusInternalServerError, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, admin)
+	})
 }
