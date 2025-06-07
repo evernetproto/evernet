@@ -37,6 +37,9 @@ func (s *Server) Start() {
 
 	router := gin.Default()
 
+	configService := vertex.NewConfigService(db)
+	configService.Init()
+
 	vertex.NewHealthCheckApiHandler(router).Register()
 
 	err = router.Run(fmt.Sprintf("%s:%s", s.config.Host, s.config.Port))
