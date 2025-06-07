@@ -1,0 +1,37 @@
+package admin
+
+import (
+	"github.com/evernetproto/evernet/internal/pkg/api"
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
+
+type ApiHandler struct {
+	router  *gin.Engine
+	service *Service
+}
+
+func NewApiHandler(router *gin.Engine, service *Service) *ApiHandler {
+	return &ApiHandler{router: router, service: service}
+}
+
+func (a *ApiHandler) Register() {
+
+	a.router.POST("/api/v1/admins/init", func(c *gin.Context) {
+		var req InitRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			api.Error(c, http.StatusBadRequest, err)
+			return
+		}
+
+		admin, err := a.service.Init(&req)
+
+		if err != nil {
+			api.Error(c, http.StatusInternalServerError, err)
+			return
+		}
+
+		admin.Password = ""
+		c.JSON(http.StatusCreated, admin)
+	})
+}

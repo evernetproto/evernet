@@ -3,6 +3,7 @@ package evernet
 import (
 	"fmt"
 	"github.com/dgraph-io/badger/v4"
+	"github.com/evernetproto/evernet/internal/app/evernet/admin"
 	"github.com/evernetproto/evernet/internal/app/evernet/vertex"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -39,8 +40,10 @@ func (s *Server) Start() {
 
 	configService := vertex.NewConfigService(db)
 	configService.Init()
+	adminService := admin.NewService(db, configService)
 
 	vertex.NewHealthCheckApiHandler(router).Register()
+	admin.NewApiHandler(router, adminService).Register()
 
 	err = router.Run(fmt.Sprintf("%s:%s", s.config.Host, s.config.Port))
 
