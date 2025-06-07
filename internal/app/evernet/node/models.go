@@ -6,7 +6,7 @@ type Node struct {
 	Identifier        string    `json:"identifier"`
 	Name              string    `json:"name"`
 	Description       string    `json:"description"`
-	SigningPrivateKey string    `json:"signing_private_key"`
+	SigningPrivateKey string    `json:"signing_private_key,omitempty"`
 	SigningPublicKey  string    `json:"signing_public_key"`
 	Open              bool      `json:"open"`
 	Creator           string    `json:"creator"`

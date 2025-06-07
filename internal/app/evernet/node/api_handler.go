@@ -44,4 +44,21 @@ func (a *ApiHandler) Register() {
 
 		c.JSON(http.StatusCreated, node)
 	})
+
+	a.router.GET("/api/v1/admins/nodes", func(c *gin.Context) {
+		_, err := a.adminAuthenticator.ValidateAdminContext(c)
+		if err != nil {
+			api.Error(c, http.StatusUnauthorized, err)
+			return
+		}
+
+		nodes, err := a.service.List()
+
+		if err != nil {
+			api.Error(c, http.StatusInternalServerError, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, nodes)
+	})
 }

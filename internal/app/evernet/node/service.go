@@ -70,3 +70,42 @@ func (s *Service) Create(request *CreationRequest, creator string) (*Node, error
 
 	return node, nil
 }
+
+func (s *Service) List() ([]*Node, error) {
+	nodes := make([]*Node, 0)
+
+	err := s.db.View(func(txn *badger.Txn) error {
+		it := txn.NewIterator(badger.DefaultIteratorOptions)
+		defer it.Close()
+
+		prefix := []byte(KeyPrefix)
+		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
+			item := it.Item()
+			nodeString, err := item.ValueCopy(nil)
+
+			if err != nil {
+				return err
+			}
+
+			var node Node
+
+			err = json.Unmarshal(nodeString, &node)
+
+			if err != nil {
+				return err
+			}
+
+			node.SigningPrivateKey = ""
+
+			nodes = append(nodes, &node)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return nodes, nil
+}
