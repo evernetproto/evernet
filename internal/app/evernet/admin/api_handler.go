@@ -175,4 +175,20 @@ func (a *ApiHandler) Register() {
 		admin.Admin.Password = ""
 		c.JSON(http.StatusOK, admin)
 	})
+
+	a.router.DELETE("/api/v1/admins/:identifier", func(c *gin.Context) {
+		_, err := a.authenticator.ValidateAdminContext(c)
+		if err != nil {
+			api.Error(c, http.StatusUnauthorized, err)
+			return
+		}
+
+		admin, err := a.service.Delete(c.Param("identifier"))
+		if err != nil {
+			api.Error(c, http.StatusInternalServerError, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, admin)
+	})
 }

@@ -352,6 +352,35 @@ func (s *Service) ResetPassword(identifier string) (*PasswordResponse, error) {
 	}, nil
 }
 
-func (s *Service) Delete() {
+func (s *Service) Delete(identifier string) (*Admin, error) {
+	var admin *Admin
 
+	err := s.db.Update(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte(fmt.Sprintf("%s%s", KeyPrefix, identifier)))
+		if errors.Is(err, badger.ErrKeyNotFound) {
+			return fmt.Errorf("admin %s not found", identifier)
+		}
+
+		if err != nil {
+			return err
+		}
+
+		val, err := item.ValueCopy(nil)
+		if err != nil {
+			return err
+		}
+
+		err = json.Unmarshal(val, &admin)
+		if err != nil {
+			return err
+		}
+
+		return txn.Delete([]byte(fmt.Sprintf("%s%s", KeyPrefix, identifier)))
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return admin, nil
 }
