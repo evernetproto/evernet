@@ -14,7 +14,6 @@ import (
 type Service struct {
 	db                  *badger.DB
 	vertexConfigService *vertex.ConfigService
-	authenticator       *auth.Authenticator
 }
 
 const (
@@ -142,11 +141,47 @@ func (s *Service) GetToken(request *TokenRequest) (*TokenResponse, error) {
 		return nil, err
 	}
 
-	token, err := s.authenticator.GenerateAdminToken(admin.Identifier, vertexEndpoint, jwtSigningKey)
+	token, err := auth.GenerateAdminToken(admin.Identifier, vertexEndpoint, jwtSigningKey)
 
 	if err != nil {
 		return nil, err
 	}
 
 	return &TokenResponse{Token: token}, nil
+}
+
+func (s *Service) Get(identifier string) (*Admin, error) {
+	var admin *Admin
+
+	err := s.db.View(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte(fmt.Sprintf("%s%s", KeyPrefix, identifier)))
+
+		if errors.Is(err, badger.ErrKeyNotFound) {
+			return fmt.Errorf("admin %s not found", identifier)
+		}
+
+		if err != nil {
+			return err
+		}
+
+		val, err := item.ValueCopy(nil)
+
+		if err != nil {
+			return err
+		}
+
+		err = json.Unmarshal(val, &admin)
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return admin, nil
 }

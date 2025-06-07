@@ -7,12 +7,13 @@ import (
 )
 
 type ApiHandler struct {
-	router  *gin.Engine
-	service *Service
+	router        *gin.Engine
+	service       *Service
+	authenticator *Authenticator
 }
 
-func NewApiHandler(router *gin.Engine, service *Service) *ApiHandler {
-	return &ApiHandler{router: router, service: service}
+func NewApiHandler(router *gin.Engine, service *Service, authenticator *Authenticator) *ApiHandler {
+	return &ApiHandler{router: router, service: service, authenticator: authenticator}
 }
 
 func (a *ApiHandler) Register() {
@@ -50,5 +51,24 @@ func (a *ApiHandler) Register() {
 		}
 
 		c.JSON(http.StatusOK, token)
+	})
+
+	a.router.GET("/api/v1/admins/current", func(c *gin.Context) {
+		ad, err := a.authenticator.ValidateAdminContext(c)
+
+		if err != nil {
+			api.Error(c, http.StatusUnauthorized, err)
+			return
+		}
+
+		admin, err := a.service.Get(ad.Identifier)
+
+		if err != nil {
+			api.Error(c, http.StatusInternalServerError, err)
+			return
+		}
+
+		admin.Password = ""
+		c.JSON(http.StatusOK, admin)
 	})
 }

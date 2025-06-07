@@ -8,19 +8,12 @@ import (
 	"time"
 )
 
-type Authenticator struct {
-}
-
-func NewAuthenticator() *Authenticator {
-	return &Authenticator{}
-}
-
 const (
 	TokenTypeAdmin = "Admin"
 	BearerToken    = "Bearer"
 )
 
-func (a *Authenticator) GenerateAdminToken(identifier string, vertexEndpoint string, jwtSigningKey string) (string, error) {
+func GenerateAdminToken(identifier string, vertexEndpoint string, jwtSigningKey string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":  identifier,
 		"iss":  vertexEndpoint,
@@ -39,8 +32,8 @@ func (a *Authenticator) GenerateAdminToken(identifier string, vertexEndpoint str
 	return tokenString, nil
 }
 
-func (a *Authenticator) ValidateAdminContext(c *gin.Context, jwtSigningKey string, vertexEndpoint string) (*AuthenticatedAdmin, error) {
-	tokenType, token, err := a.extractToken(c)
+func ValidateAdminContext(c *gin.Context, jwtSigningKey string, vertexEndpoint string) (*AuthenticatedAdmin, error) {
+	tokenType, token, err := extractToken(c)
 
 	if err != nil {
 		return nil, err
@@ -48,13 +41,13 @@ func (a *Authenticator) ValidateAdminContext(c *gin.Context, jwtSigningKey strin
 
 	switch tokenType {
 	case BearerToken:
-		return a.validateAdminToken(token, jwtSigningKey, vertexEndpoint)
+		return validateAdminToken(token, jwtSigningKey, vertexEndpoint)
 	default:
 		return nil, fmt.Errorf("invalid token type")
 	}
 }
 
-func (a *Authenticator) validateAdminToken(tokenString string, jwtSigningKey string, vertexEndpoint string) (*AuthenticatedAdmin, error) {
+func validateAdminToken(tokenString string, jwtSigningKey string, vertexEndpoint string) (*AuthenticatedAdmin, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(jwtSigningKey), nil
 	})
@@ -126,7 +119,7 @@ func (a *Authenticator) validateAdminToken(tokenString string, jwtSigningKey str
 	}
 }
 
-func (a *Authenticator) extractToken(c *gin.Context) (string, string, error) {
+func extractToken(c *gin.Context) (string, string, error) {
 	authorizationHeader := c.GetHeader("Authorization")
 
 	if len(authorizationHeader) == 0 {

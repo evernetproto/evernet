@@ -40,10 +40,11 @@ func (s *Server) Start() {
 
 	configService := vertex.NewConfigService(db)
 	configService.Init()
+	adminAuthenticator := admin.NewAuthenticator(configService)
 	adminService := admin.NewService(db, configService)
 
 	vertex.NewHealthCheckApiHandler(router).Register()
-	admin.NewApiHandler(router, adminService).Register()
+	admin.NewApiHandler(router, adminService, adminAuthenticator).Register()
 
 	err = router.Run(fmt.Sprintf("%s:%s", s.config.Host, s.config.Port))
 
