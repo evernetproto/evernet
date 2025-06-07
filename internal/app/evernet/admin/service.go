@@ -243,7 +243,7 @@ func (s *Service) ChangePassword(identifier string, request *PasswordChangeReque
 	return admin, nil
 }
 
-func (s *Service) Add(request *AdditionRequest, creator string) (*Admin, error) {
+func (s *Service) Add(request *AdditionRequest, creator string) (*PasswordResponse, error) {
 	newPassword, err := secret.GenerateSecret(16)
 
 	if err != nil {
@@ -288,7 +288,10 @@ func (s *Service) Add(request *AdditionRequest, creator string) (*Admin, error) 
 		return nil, err
 	}
 
-	return admin, nil
+	return &PasswordResponse{
+		Password: newPassword,
+		Admin:    admin,
+	}, nil
 }
 
 func (s *Service) List() ([]*Admin, error) {
@@ -328,4 +331,27 @@ func (s *Service) List() ([]*Admin, error) {
 	}
 
 	return admins, nil
+}
+
+func (s *Service) ResetPassword(identifier string) (*PasswordResponse, error) {
+	newPassword, err := secret.GenerateSecret(16)
+
+	if err != nil {
+		return nil, err
+	}
+
+	admin, err := s.ChangePassword(identifier, &PasswordChangeRequest{Password: newPassword})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &PasswordResponse{
+		Password: newPassword,
+		Admin:    admin,
+	}, nil
+}
+
+func (s *Service) Delete() {
+
 }

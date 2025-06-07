@@ -118,7 +118,7 @@ func (a *ApiHandler) Register() {
 			return
 		}
 
-		admin.Password = ""
+		admin.Admin.Password = ""
 
 		c.JSON(http.StatusCreated, admin)
 	})
@@ -155,6 +155,24 @@ func (a *ApiHandler) Register() {
 			return
 		}
 
+		c.JSON(http.StatusOK, admin)
+	})
+
+	a.router.PUT("/api/v1/admins/:identifier/password", func(c *gin.Context) {
+		_, err := a.authenticator.ValidateAdminContext(c)
+		if err != nil {
+			api.Error(c, http.StatusUnauthorized, err)
+			return
+		}
+
+		admin, err := a.service.ResetPassword(c.Param("identifier"))
+
+		if err != nil {
+			api.Error(c, http.StatusInternalServerError, err)
+			return
+		}
+
+		admin.Admin.Password = ""
 		c.JSON(http.StatusOK, admin)
 	})
 }
