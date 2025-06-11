@@ -16,26 +16,26 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(NON_NULL)
-public class ActorAddress {
+public class UserAddress {
 
-    private String actorIdentifier;
+    private String userIdentifier;
 
     private NodeAddress nodeAddress;
 
-    public static ActorAddress fromString(String address) {
+    public static UserAddress fromString(String address) {
         String[] components = address.split("/");
 
         if (components.length != 3) {
-            throw new ClientException(String.format("Invalid actor address %s", address));
+            throw new ClientException(String.format("Invalid user address %s", address));
         }
 
-        return ActorAddress.builder()
+        return UserAddress.builder()
                 .nodeAddress(NodeAddress.builder().vertexEndpoint(components[0]).nodeIdentifier(components[1]).build())
-                .actorIdentifier(components[2])
+                .userIdentifier(components[2])
                 .build();
     }
 
     public String toString() {
-        return String.format("%s/%s", nodeAddress.toString(), actorIdentifier);
+        return String.format("%s/%s", nodeAddress.toString(), userIdentifier);
     }
 }
