@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Page(c *gin.Context) (int64, int64) {
+func Page(c *gin.Context) (int, int) {
 	pageString := c.DefaultQuery("page", "0")
 	sizeString := c.DefaultQuery("size", "50")
 
@@ -22,5 +22,5 @@ func Page(c *gin.Context) (int64, int64) {
 		size = 50
 	}
 
-	return int64(page), int64(size)
+	return page, size
 }

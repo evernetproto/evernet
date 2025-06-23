@@ -10,6 +10,10 @@ type Authenticator struct {
 	configService *config.Service
 }
 
+func NewAuthenticator(configService *config.Service) *Authenticator {
+	return &Authenticator{configService: configService}
+}
+
 func (a *Authenticator) ValidateAdminContext(c *gin.Context) (*auth.AuthenticatedAdmin, error) {
 	vertexEndpoint, err := a.configService.GetVertexEndpoint()
 

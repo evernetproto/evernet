@@ -64,10 +64,11 @@ func (s *Server) Start() {
 		log.Fatal("error initializing config service: ", err)
 	}
 
+	adminAuthenticator := admin.NewAuthenticator(configService)
 	adminService := admin.NewService(db, configService)
 
 	health.NewApiHandler(router).Register()
-	admin.NewApiHandler(router, adminService).Register()
+	admin.NewApiHandler(router, adminAuthenticator, adminService).Register()
 
 	log.Print("starting vertex server")
 	err = router.Run(fmt.Sprintf("%s:%s", s.config.Host, s.config.Port))
