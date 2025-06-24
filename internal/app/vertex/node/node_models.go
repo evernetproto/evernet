@@ -1,6 +1,10 @@
 package node
 
-import "gorm.io/gorm"
+import (
+	"crypto/ed25519"
+	"github.com/evernetproto/evernet/internal/pkg/keys"
+	"gorm.io/gorm"
+)
 
 type Node struct {
 	gorm.Model
@@ -11,4 +15,12 @@ type Node struct {
 	SigningPublicKey  string `json:"signing_public_key"`
 	Open              bool   `json:"open"`
 	Creator           string `json:"creator"`
+}
+
+func (n *Node) GetSigningPrivateKey() (ed25519.PrivateKey, error) {
+	return keys.StringToPrivateKey(n.SigningPrivateKey)
+}
+
+func (n *Node) GetSigningPublicKey() (ed25519.PublicKey, error) {
+	return keys.StringToPublicKey(n.SigningPublicKey)
 }

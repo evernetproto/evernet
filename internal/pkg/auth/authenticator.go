@@ -1,7 +1,9 @@
 package auth
 
 import (
+	"crypto/ed25519"
 	"fmt"
+	"github.com/evernetproto/evernet/internal/pkg/address"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"strings"
@@ -11,6 +13,7 @@ import (
 const (
 	BearerToken    = "Bearer"
 	TokenTypeAdmin = "admin"
+	TokenTypeUser  = "user"
 )
 
 func GenerateAdminToken(identifier string, vertexEndpoint string, jwtSigningKey string) (string, error) {
@@ -24,6 +27,38 @@ func GenerateAdminToken(identifier string, vertexEndpoint string, jwtSigningKey 
 	})
 
 	tokenString, err := token.SignedString([]byte(jwtSigningKey))
+
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
+func GenerateUserToken(identifier string, nodeIdentifier string, vertexEndpoint string, signingPrivateKey ed25519.PrivateKey, targetNodeAddress string) (string, error) {
+	nodeAddress := address.NodeAddress{
+		Identifier:     nodeIdentifier,
+		VertexEndpoint: vertexEndpoint,
+	}
+
+	targetNode, err := address.NodeAddressFromString(targetNodeAddress)
+
+	if err != nil {
+		return "", err
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, jwt.MapClaims{
+		"sub":  identifier,
+		"iss":  nodeAddress.ToString(),
+		"aud":  targetNode.ToString(),
+		"type": TokenTypeUser,
+		"iat":  int(time.Now().Unix()),
+		"exp":  int(time.Now().Add(time.Hour * 24).Unix()),
+	})
+
+	token.Header["kid"] = nodeAddress.ToString()
+
+	tokenString, err := token.SignedString(signingPrivateKey)
 
 	if err != nil {
 		return "", err
