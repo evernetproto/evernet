@@ -5,6 +5,7 @@ import (
 	"github.com/evernetproto/evernet/internal/app/vertex/admin"
 	"github.com/evernetproto/evernet/internal/app/vertex/config"
 	"github.com/evernetproto/evernet/internal/app/vertex/health"
+	"github.com/evernetproto/evernet/internal/app/vertex/node"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
@@ -41,7 +42,7 @@ func (s *Server) Start() {
 		log.Fatal("error initializing data database: ", err)
 	}
 
-	err = db.AutoMigrate(&config.Config{}, &admin.Admin{})
+	err = db.AutoMigrate(&config.Config{}, &admin.Admin{}, &node.Node{})
 
 	if err != nil {
 		log.Fatal("error initializing database schema: ", err)
@@ -66,9 +67,12 @@ func (s *Server) Start() {
 
 	adminAuthenticator := admin.NewAuthenticator(configService)
 	adminService := admin.NewService(db, configService)
+	nodeService := node.NewService(db)
 
 	health.NewApiHandler(router).Register()
 	admin.NewApiHandler(router, adminAuthenticator, adminService).Register()
+	node.NewAdminApiHandler(router, adminAuthenticator, nodeService).Register()
+	node.NewApiHandler(router, nodeService).Register()
 
 	log.Print("starting vertex server")
 	err = router.Run(fmt.Sprintf("%s:%s", s.config.Host, s.config.Port))

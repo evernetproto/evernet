@@ -215,7 +215,7 @@ func (s *Service) Delete(identifier string) (*Admin, error) {
 		return nil, err
 	}
 
-	result := s.db.Where(&Admin{Identifier: identifier}).Delete(&Admin{})
+	result := s.db.Delete(admin)
 
 	if result.Error != nil {
 		return nil, result.Error
