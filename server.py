@@ -5,13 +5,15 @@ from flask import Flask, request, jsonify, g
 
 from controller.admin_controller import AdminController
 from controller.health_check_controller import HealthCheckController
+from controller.node_controller import NodeController
 from model.database import db
 from model.admin import Admin
 from model.config import Config
+from model.node import Node
 
 from service.config_service import ConfigService
 
-db.create_tables([Admin, Config])
+db.create_tables([Admin, Config, Node])
 
 app = Flask(__name__)
 
@@ -19,6 +21,7 @@ ConfigService.init()
 
 HealthCheckController(app).register()
 AdminController(app).register()
+NodeController(app).register()
 
 
 @app.before_request
