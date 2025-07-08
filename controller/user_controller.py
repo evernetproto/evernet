@@ -33,3 +33,35 @@ class UserController:
             if not user["local"]:
                 raise Exception("You are not allowed to perform this action")
             return UserService.get(user["identifier"], user["target_node_identifier"])
+
+        @self.app.put("/api/v1/users/me")
+        @authenticate_user
+        def update_current_user_details(user):
+            if not user["local"]:
+                raise Exception("You are not allowed to perform this action")
+            return UserService.update(
+                user["identifier"],
+                required_param("display_name"),
+                user["target_node_identifier"]
+            )
+
+        @self.app.put("/api/v1/users/me/password")
+        @authenticate_user
+        def update_current_user_password(user):
+            if not user["local"]:
+                raise Exception("You are not allowed to perform this action")
+            return UserService.change_password(
+                user["identifier"],
+                required_param("password"),
+                user["target_node_identifier"]
+            )
+
+        @self.app.delete("/api/v1/users/me")
+        @authenticate_user
+        def delete_current_user(user):
+            if not user["local"]:
+                raise Exception("You are not allowed to perform this action")
+            return UserService.delete(
+                user["identifier"],
+                user["node_identifier"]
+            )

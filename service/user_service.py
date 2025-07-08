@@ -1,8 +1,10 @@
+import datetime
 import time
 import uuid
 
 import bcrypt
 import jwt
+from certifi import where
 
 from model.user import User
 from service.config_service import ConfigService
@@ -81,6 +83,48 @@ class UserService:
         if not user:
             raise Exception(f"User {identifier} not found on node {node_identifier}")
         return UserService.to_dict(user)
+
+    @staticmethod
+    def update(identifier: str, display_name: str, node_identifier: str) -> dict:
+        count = User.update(
+            display_name=display_name,
+            updated_at=datetime.datetime.now(tz=datetime.timezone.utc)
+        ).where(User.identifier == identifier, User.node_identifier == node_identifier).execute()
+
+        if count == 0:
+            raise Exception(f"User {identifier} not found on node {node_identifier}")
+
+        return {
+            "identifier": identifier,
+            "node_identifier": node_identifier
+        }
+
+    @staticmethod
+    def change_password(identifier: str, password: str, node_identifier: str) -> dict:
+        count = User.update(
+            password=bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode(),
+            updated_at=datetime.datetime.now(tz=datetime.timezone.utc)
+        ).where(User.identifier == identifier, User.node_identifier == node_identifier).execute()
+
+        if count == 0:
+            raise Exception(f"User {identifier} not found on node {node_identifier}")
+
+        return {
+            "identifier": identifier,
+            "node_identifier": node_identifier
+        }
+
+    @staticmethod
+    def delete(identifier: str, node_identifier: str) -> dict:
+        count = User.delete().where(User.identifier == identifier, User.node_identifier == node_identifier).execute()
+
+        if count == 0:
+            raise Exception(f"User {identifier} not found on node {node_identifier}")
+
+        return {
+            "identifier": identifier,
+            "node_identifier": node_identifier
+        }
 
     @staticmethod
     def to_dict(user: User) -> dict:
