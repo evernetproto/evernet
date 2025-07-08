@@ -58,6 +58,13 @@ class NodeService:
         return NodeService.to_dict(node)
 
     @staticmethod
+    def get_signing_private_key(identifier: str):
+        node = Node.select().where(Node.identifier == identifier).get()
+        if not node:
+            raise Exception(f"Node {identifier} not found")
+        return string_to_private_key(node.signing_private_key)
+
+    @staticmethod
     def update(identifier: str, display_name: str, description: str) -> dict:
         count = Node.update(
             identifier=identifier,

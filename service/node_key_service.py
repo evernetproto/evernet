@@ -21,7 +21,7 @@ class NodeKeyService:
 
         if kid_vertex_endpoint == current_vertex_endpoint:
             node = NodeService.get(kid_node_identifier)
-            return string_to_public_key(node["signing_public_key"])
+            return kid_vertex_endpoint, kid_node_identifier, string_to_public_key(node["signing_public_key"])
         else:
             node = RemoteNodeService.get(kid_vertex_endpoint, kid_node_identifier)
-            return string_to_public_key(node["signing_public_key"])
+            return kid_vertex_endpoint, kid_node_identifier, string_to_public_key(node["signing_public_key"])

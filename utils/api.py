@@ -75,7 +75,7 @@ def authenticate_admin(f):
     return decorated
 
 
-def authenticate_actor(f):
+def authenticate_user(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
@@ -96,10 +96,11 @@ def authenticate_actor(f):
                 token,
                 issuer_signing_public_key,
                 algorithms=['EdDSA'],
-                issuer="%s/%s" % (issuer_vertex_endpoint, issuer_node_identifier)
+                issuer="%s/%s" % (issuer_vertex_endpoint, issuer_node_identifier),
+                options={"verify_aud": False}
             )
 
-            if data["type"] != "actor":
+            if data["type"] != "user":
                 raise Exception("Invalid access token")
 
             audience = data["aud"]
@@ -118,20 +119,21 @@ def authenticate_actor(f):
 
             is_local = audience_node_identifier == issuer_node_identifier and audience_vertex_endpoint == issuer_vertex_endpoint
 
-            current_actor = {
+            current_user = {
                 "identifier": data["sub"],
                 "source_vertex_endpoint": issuer_vertex_endpoint,
                 "source_node_identifier": issuer_node_identifier,
                 "source_node_address": "%s/%s" % (issuer_vertex_endpoint, issuer_node_identifier),
-                "address": "%s/%s/%s" % (g.vertex_endpoint, issuer_node_identifier, data["sub"]),
+                "address": "%s/%s/%s" % (issuer_vertex_endpoint, issuer_node_identifier, data["sub"]),
                 "target_vertex_endpoint": audience_vertex_endpoint,
                 "target_node_identifier": audience_node_identifier,
                 "target_node_address": "%s/%s" % (audience_vertex_endpoint, audience_node_identifier),
                 "local": is_local
             }
-        except Exception as _:
+        except Exception as e:
+            print(e)
             raise Exception("Invalid access token")
 
-        return f(current_actor, *args, **kwargs)
+        return f(current_user, *args, **kwargs)
 
     return decorated

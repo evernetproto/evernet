@@ -1,0 +1,95 @@
+import time
+import uuid
+
+import bcrypt
+import jwt
+
+from model.user import User
+from service.config_service import ConfigService
+from service.node_service import NodeService
+
+
+class UserService:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def sign_up(node_identifier: str, identifier: str, password: str, display_name: str):
+        node = NodeService.get(node_identifier)
+
+        if not node["open"]:
+            raise Exception(f"Node {node_identifier} not found")
+
+        if User.select().where(User.node_identifier == node_identifier, User.identifier == identifier).exists():
+            raise Exception(f"User {identifier} already exists on node {node_identifier}")
+
+        user = User(
+            node_identifier=node["identifier"],
+            identifier=identifier,
+            display_name=display_name,
+            password=bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode(),
+            creator=None
+        )
+
+        user.save()
+
+        return {
+            "id": user.get_id(),
+            "identifier": user.identifier,
+            "node_identifier": user.node_identifier
+        }
+
+    @staticmethod
+    def get_token(node_identifier: str, identifier: str, password: str, target_node_address: str=None) -> dict:
+        user = User.select().where(User.node_identifier == node_identifier, User.identifier == identifier).get_or_none()
+
+        if not user:
+            raise Exception("Invalid identifier and password combination")
+
+        if not bcrypt.checkpw(password.encode(), user.password.encode()):
+            raise Exception("Invalid identifier and password combination")
+
+        vertex_endpoint = ConfigService.get_vertex_endpoint()
+        issuer = f"{vertex_endpoint}/{node_identifier}"
+        if not target_node_address:
+            target_node_address = issuer
+
+        jwt_token = jwt.encode(
+            payload={
+                "sub": user.identifier,
+                "exp": int(time.time() + 3600*24),
+                "iat": int(time.time()),
+                "iss": issuer,
+                "aud": target_node_address,
+                "jti": str(uuid.uuid4()),
+                "type": "user"
+            },
+            headers={
+                "kid": issuer
+            },
+            key=NodeService.get_signing_private_key(node_identifier),
+            algorithm="EdDSA"
+        )
+
+        return {
+            "token": jwt_token
+        }
+
+    @staticmethod
+    def get(identifier: str, node_identifier: str) -> dict:
+        user = User.select().where(User.node_identifier == node_identifier, User.identifier == identifier).get_or_none()
+        if not user:
+            raise Exception(f"User {identifier} not found on node {node_identifier}")
+        return UserService.to_dict(user)
+
+    @staticmethod
+    def to_dict(user: User) -> dict:
+        return {
+            "id": user.get_id(),
+            "identifier": user.identifier,
+            "node_identifier": user.node_identifier,
+            "display_name": user.display_name,
+            "creator": user.creator,
+            "created_at": user.created_at,
+            "updated_at": user.updated_at,
+        }
