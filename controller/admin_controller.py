@@ -45,7 +45,7 @@ class AdminController:
         @self.app.get("/api/v1/admins")
         @authenticate_admin
         def list_admins(admin):
-            return AdminService.list(page(), size())
+            return AdminService.fetch(page(), size())
 
         @self.app.get("/api/v1/admins/<identifier>")
         @authenticate_admin

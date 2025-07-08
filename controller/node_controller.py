@@ -24,7 +24,7 @@ class NodeController:
         @self.app.get("/api/v1/admins/nodes")
         @authenticate_admin
         def list_nodes(admin):
-            return NodeService.list(page(), size())
+            return NodeService.fetch(page(), size())
 
         @self.app.get("/api/v1/admins/nodes/<identifier>")
         @authenticate_admin
@@ -57,3 +57,11 @@ class NodeController:
         @authenticate_admin
         def reset_node_signing_keys(admin, identifier):
             return NodeService.reset_signing_keys(identifier)
+
+        @self.app.get("/api/v1/nodes")
+        def fetch_open_nodes():
+            return NodeService.fetch_open(page(), size())
+
+        @self.app.get("/api/v1/nodes/<identifier>")
+        def get_node_details(identifier):
+            return NodeService.get(identifier)

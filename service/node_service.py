@@ -33,8 +33,16 @@ class NodeService:
         }
 
     @staticmethod
-    def list(page=0, size=50) -> list[dict]:
+    def fetch(page=0, size=50) -> list[dict]:
         nodes = Node.select().paginate(page, size)
+        result = []
+        for node in nodes:
+            result.append(NodeService.to_dict(node))
+        return result
+
+    @staticmethod
+    def fetch_open(page=0, size=50) -> list[dict]:
+        nodes = Node.select().where(Node.open == True).paginate(page, size)
         result = []
         for node in nodes:
             result.append(NodeService.to_dict(node))
