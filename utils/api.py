@@ -29,7 +29,7 @@ def optional_param(key: str, data_type=str):
 
 
 def page():
-    return request.args.get("page", 0, int)
+    return request.args.get("page", 1, int)
 
 
 def size():

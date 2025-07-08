@@ -1,7 +1,7 @@
 from flask import Flask
 
 from service.user_service import UserService
-from utils.api import required_param, optional_param, authenticate_user
+from utils.api import required_param, optional_param, authenticate_user, authenticate_admin, page, size
 
 
 class UserController:
@@ -64,4 +64,44 @@ class UserController:
             return UserService.delete(
                 user["identifier"],
                 user["node_identifier"]
+            )
+
+
+        @self.app.post("/api/v1/admins/nodes/<node_identifier>/users")
+        @authenticate_admin
+        def add_user(admin, node_identifier):
+            return UserService.add(
+                required_param("identifier"),
+                required_param("display_name"),
+                node_identifier,
+                admin["identifier"]
+            )
+
+        @self.app.get("/api/v1/admins/nodes/<node_identifier>/users")
+        @authenticate_admin
+        def fetch_users(admin, node_identifier):
+            return UserService.fetch(node_identifier, page(), size())
+
+        @self.app.get("/api/v1/admins/nodes/<node_identifier>/users/<identifier>")
+        @authenticate_admin
+        def get_user(admin, node_identifier, identifier):
+            return UserService.get(identifier, node_identifier)
+
+        @self.app.delete("/api/v1/admins/nodes/<node_identifier>/users/<identifier>")
+        @authenticate_admin
+        def delete_user(admin, node_identifier, identifier):
+            return UserService.delete(identifier, node_identifier)
+
+        @self.app.put("/api/v1/admins/nodes/<node_identifier>/users/<identifier>/password")
+        @authenticate_admin
+        def reset_user_password(admin, node_identifier, identifier):
+            return UserService.reset_password(identifier, node_identifier)
+
+        @self.app.put("/api/v1/admins/nodes/<node_identifier>/users/<identifier>")
+        @authenticate_admin
+        def update_user_details(admin, node_identifier, identifier):
+            return UserService.update(
+                identifier,
+                required_param("display_name"),
+                node_identifier,
             )

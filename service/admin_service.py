@@ -114,7 +114,7 @@ class AdminService:
         }
 
     @staticmethod
-    def fetch(page=0, size=50) -> list[dict]:
+    def fetch(page=1, size=50) -> list[dict]:
         result = []
 
         for admin in Admin.select().paginate(page, size):

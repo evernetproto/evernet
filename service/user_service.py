@@ -9,6 +9,7 @@ from certifi import where
 from model.user import User
 from service.config_service import ConfigService
 from service.node_service import NodeService
+from utils import secret
 
 
 class UserService:
@@ -42,7 +43,7 @@ class UserService:
         }
 
     @staticmethod
-    def get_token(node_identifier: str, identifier: str, password: str, target_node_address: str=None) -> dict:
+    def get_token(node_identifier: str, identifier: str, password: str, target_node_address: str = None) -> dict:
         user = User.select().where(User.node_identifier == node_identifier, User.identifier == identifier).get_or_none()
 
         if not user:
@@ -59,7 +60,7 @@ class UserService:
         jwt_token = jwt.encode(
             payload={
                 "sub": user.identifier,
-                "exp": int(time.time() + 3600*24),
+                "exp": int(time.time() + 3600 * 24),
                 "iat": int(time.time()),
                 "iss": issuer,
                 "aud": target_node_address,
@@ -125,6 +126,49 @@ class UserService:
             "identifier": identifier,
             "node_identifier": node_identifier
         }
+
+    @staticmethod
+    def add(identifier: str, display_name: str, node_identifier: str, creator: str) -> dict:
+        node = NodeService.get(node_identifier)
+        if User.select().where(User.node_identifier == node_identifier, User.identifier == identifier).exists():
+            raise Exception(f"User {identifier} already exists on node {node_identifier}")
+
+        password = secret.generate(16)
+
+        user = User(
+            node_identifier=node["identifier"],
+            identifier=identifier,
+            display_name=display_name,
+            password=bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode(),
+            creator=creator
+        )
+
+        user.save()
+
+        return {
+            "id": user.get_id(),
+            "identifier": identifier,
+            "node_identifier": node_identifier,
+            "password": password,
+        }
+
+    @staticmethod
+    def fetch(node_identifier: str, page: int = 1, size: int = 50):
+        users = User.select().where(User.node_identifier == node_identifier).paginate(page, size)
+
+        result = []
+        for user in users:
+            result.append(UserService.to_dict(user))
+
+        return result
+
+    @staticmethod
+    def reset_password(identifier: str, node_identifier: str) -> dict:
+        password = secret.generate(16)
+
+        result = UserService.change_password(identifier, password, node_identifier)
+        result["password"] = password
+        return result
 
     @staticmethod
     def to_dict(user: User) -> dict:
