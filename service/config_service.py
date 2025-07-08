@@ -75,3 +75,7 @@ class ConfigService:
     @staticmethod
     def get_vertex_description():
         return ConfigService.get_or_default('vertex_description', "Vertex")
+
+    @staticmethod
+    def get_federation_protocol():
+        return ConfigService.get_or_default('federation_protocol', "http")

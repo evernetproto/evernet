@@ -2,6 +2,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
 from service.config_service import ConfigService
 from service.node_service import NodeService
+from service.remote_node_service import RemoteNodeService
 from utils.ed25519 import string_to_public_key
 
 
@@ -22,5 +23,5 @@ class NodeKeyService:
             node = NodeService.get(kid_node_identifier)
             return string_to_public_key(node["signing_public_key"])
         else:
-            # TODO
-            return None
+            node = RemoteNodeService.get(kid_vertex_endpoint, kid_node_identifier)
+            return string_to_public_key(node["signing_public_key"])
