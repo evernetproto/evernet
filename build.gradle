@@ -26,6 +26,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
     compileOnly 'org.projectlombok:lombok:1.18.38'
     annotationProcessor 'org.projectlombok:lombok:1.18.38'
+    implementation 'com.networknt:json-schema-validator:1.5.8'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 

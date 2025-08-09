@@ -101,6 +101,7 @@ public class MessageTypeService {
 
             String url = UriComponentsBuilder.fromUriString(baseUrl)
                     .queryParam("address", address.toString())
+                    .build()
                     .toUriString();
 
             sourceMessageType = restTemplate.getForObject(url, MessageType.class);

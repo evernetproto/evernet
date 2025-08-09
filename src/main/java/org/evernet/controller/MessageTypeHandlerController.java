@@ -33,13 +33,13 @@ public class MessageTypeHandlerController extends AuthenticatedActorController {
         return messageTypeHandlerService.list(
                 messageTypeAddress,
                 location,
-                getActorNodeIdentifier(),
+                getTargetNodeIdentifier(),
                 getActorAddress()
         );
     }
 
     @DeleteMapping("/handlers")
     public MessageTypeHandler delete(@Valid @RequestBody MessageTypeHandlerRequest request) {
-        return messageTypeHandlerService.delete(request, getActorNodeIdentifier(), getActorAddress());
+        return messageTypeHandlerService.delete(request, getTargetNodeIdentifier(), getActorAddress());
     }
 }
